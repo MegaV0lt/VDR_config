@@ -25,7 +25,7 @@ cd "$LOCAL_DIR" || exit 1
 echo '==> Überprüfe Symlinks…'
 for dir in "${!LINK_DIRS[@]}" ; do     # sbin vdr.d
   # Leeren Ordner löschen
-  if [[ -d "${LINK_DIRS[$dir]}" && ! "$(ls -A ${LINK_DIRS[$dir]})" ]] ; then
+  if [[ -d "${LINK_DIRS[$dir]}" && ! "$(ls -A "${LINK_DIRS[$dir]}")" ]] ; then
     echo "Enferne leeren Ordner ${LINK_DIRS[$dir]}…"
     rm "${LINK_DIRS[$dir]}"
   fi
