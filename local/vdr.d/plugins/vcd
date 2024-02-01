@@ -1,0 +1,19 @@
+# Parameters for VDR plugin vcd
+
+#Device to read VCDs from
+#  allowed values: cdrom-device names
+VCD_DEVICE="/dev/cdrom"
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+if [ -e $VCD_DEVICE ] ; then
+   PLUGIN_NAME=vcd
+else
+   PLUGIN_NAME=vcd
+fi
+PLUGIN_PARAMETERS="--vcd=$VCD_DEVICE"
+
+VDR_PARAMETERS=""

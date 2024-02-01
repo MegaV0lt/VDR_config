@@ -1,0 +1,11 @@
+# Parameters for VDR plugin osd2web
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=osd2web
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

@@ -1,0 +1,14 @@
+# Parameters for VDR plugin audiorecorder
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+AUDIORECORDER_DIR=/audio/audiorecorder
+[ ! -d $AUDIORECORDER_DIR ] && mkdir $AUDIORECORDER_DIR
+
+PLUGIN_NAME="audiorecorder"
+PLUGIN_PARAMETERS="--recdir $AUDIORECORDER_DIR"
+
+VDR_PARAMETERS=""

@@ -1,0 +1,11 @@
+# Parameters for VDR plugin hattrick
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=hattrick
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

@@ -1,0 +1,16 @@
+# Parameters for VDR plugin graphtftng
+DEV=/dev/fb0
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+if [ -e $DEV ] ; then
+   PLUGIN_NAME=graphtftng
+   PLUGIN_PARAMETERS="-d $DEV"
+else
+   logger -s "graphtftng device $DEV nicht vorhanden"
+   PLUGIN_NAME=""
+fi
+VDR_PARAMETERS=""

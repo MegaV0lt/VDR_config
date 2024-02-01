@@ -1,0 +1,11 @@
+# Parameters for VDR plugin console
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=console
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

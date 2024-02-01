@@ -1,0 +1,16 @@
+# Parameters for VDR plugin inputdev
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+if [ -e /var/run/vdr/inputdev ] ; then
+   PLUGIN_NAME=inputdev
+else
+   logger -s "inputdev nicht vorhanden"
+   PLUGIN_NAME=""
+fi
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

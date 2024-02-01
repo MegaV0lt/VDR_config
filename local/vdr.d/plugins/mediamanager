@@ -1,0 +1,11 @@
+# Parameters for VDR plugin mediamanager
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=mediamanager
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

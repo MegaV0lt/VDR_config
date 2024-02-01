@@ -1,0 +1,13 @@
+# Parameters for VDR plugin vodcatcher
+
+INIT_ACTION="/opt/VodcatcherHelper-0.4/startsrv.sh"
+EXIT_ACTION="/opt/VodcatcherHelper-0.4/stopsrv.sh"
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+[ ! -d /tmp/vodcatcher ] && mkdir /tmp/vodcatcher
+
+PLUGIN_NAME=vodcatcher
+PLUGIN_PARAMETERS="--cache=/tmp/vodcatcher"
+
+VDR_PARAMETERS=""

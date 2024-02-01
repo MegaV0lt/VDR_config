@@ -1,0 +1,17 @@
+# Parameters for VDR plugin extb
+
+LIRC_DEV=/dev/lircd
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+if [ -e $LIRC_DEV ] ; then
+   PLUGIN_NAME=extb
+   PLUGIN_PARAMETERS="-d $LIRC_DEV"
+else
+   logger -s "Extb lircdev $LIRC_DEV nicht vorhanden"
+   PLUGIN_NAME=""
+fi
+VDR_PARAMETERS=""

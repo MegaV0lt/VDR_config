@@ -1,0 +1,11 @@
+# Parameters for VDR plugin spider
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=spider
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

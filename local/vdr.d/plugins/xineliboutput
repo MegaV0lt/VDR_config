@@ -1,0 +1,36 @@
+# Parameters for VDR plugin xineliboutput
+#
+#  If no arguments are given, both X11 and framebuffer frontends are tried.
+#  First working frontend is used with best available video driver.
+#  Complete list of available command-line arguments can be obtained
+#  with "vdr --help".
+#
+#  Only local frontend, X11/Xv video, alsa audio:
+#    PLUGIN_PARAMETERS="--local=sxfe --video=xv --audio=alsa --noremote"
+#
+#  Only local frontend, (slow) X11 video, oss audio:
+#    PLUGIN_PARAMETERS="--local=sxfe --video=x11 --audio=oss --noremote"
+#
+#  Only local frontend, DirectFB:
+#    PLUGIN_PARAMETERS="--local=fbfe --video=DirectFB --noremote"
+#
+#  Only remote frontend(s):
+#    PLUGIN_PARAMETERS="--local=none --remote=37890"
+#
+#  Local and remote frontends:
+#    PLUGIN_PARAMETERS="--local=sxfe --remote=37890"
+#  or
+#    PLUGIN_PARAMETERS="--local=fbfe --remote=37890"
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=xineliboutput
+PLUGIN_PARAMETERS="--local=none --remote=37890 --primary"
+
+case $GUI in
+   *oxine* ) VDR_PARAMETERS="--lirc=/dev/null";;
+   *)        VDR_PARAMETERS="";; 
+esac

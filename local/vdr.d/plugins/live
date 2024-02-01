@@ -1,0 +1,11 @@
+# Parameters for VDR plugin live
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=live
+PLUGIN_PARAMETERS="--epgimages=$EPG_IMAGES"
+
+VDR_PARAMETERS=""

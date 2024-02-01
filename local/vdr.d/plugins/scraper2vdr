@@ -1,0 +1,11 @@
+# Parameters for VDR plugin scraper2vdr
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=scraper2vdr
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

@@ -1,0 +1,11 @@
+# Parameters for VDR plugin muggle
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=muggle
+PLUGIN_PARAMETERS="-t /audio"
+
+VDR_PARAMETERS=""

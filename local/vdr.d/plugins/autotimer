@@ -1,0 +1,11 @@
+# Parameters for VDR plugin autotimer
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=autotimer
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

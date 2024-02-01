@@ -1,0 +1,11 @@
+# Parameters for VDR plugin control
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=control
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

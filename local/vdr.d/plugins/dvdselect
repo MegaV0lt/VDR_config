@@ -1,0 +1,11 @@
+# Parameters for VDR plugin dvdselect
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=dvdselect
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

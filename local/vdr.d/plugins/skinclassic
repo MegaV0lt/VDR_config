@@ -1,0 +1,11 @@
+# Parameters for VDR plugin skinclassic
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=skinclassic
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

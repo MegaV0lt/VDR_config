@@ -1,0 +1,11 @@
+# Parameters for VDR plugin delsys
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=delsys
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

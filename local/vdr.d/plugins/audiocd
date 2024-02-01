@@ -1,0 +1,16 @@
+# Parameters for VDR plugin audiocd
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+AUDIO_DEVICE="/dev/cdrom"
+if [ -e $AUDIO_DEVICE ] ; then
+   PLUGIN_NAME="audiocd"
+else
+   PLUGIN_NAME=""
+fi
+PLUGIN_PARAMETERS="-d $AUDIO_DEVICE"
+
+VDR_PARAMETERS=""

@@ -1,0 +1,11 @@
+# Parameters for VDR plugin beep
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=beep
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

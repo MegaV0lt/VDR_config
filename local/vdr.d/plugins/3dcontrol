@@ -1,0 +1,11 @@
+# Parameters for VDR plugin 3dcontrol
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=3dcontrol
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

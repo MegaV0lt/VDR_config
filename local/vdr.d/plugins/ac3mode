@@ -1,0 +1,11 @@
+# Parameters for VDR plugin ac3mode
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=ac3mode
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

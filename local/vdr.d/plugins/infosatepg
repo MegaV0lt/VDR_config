@@ -1,0 +1,11 @@
+# Parameters for VDR plugin infosatepg
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=infosatepg
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

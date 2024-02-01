@@ -1,0 +1,11 @@
+# Parameters for VDR plugin games
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=games
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

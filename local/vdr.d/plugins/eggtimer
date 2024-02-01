@@ -1,0 +1,11 @@
+# Parameters for VDR plugin eggtimer
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=eggtimer
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

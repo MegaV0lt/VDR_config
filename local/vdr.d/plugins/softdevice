@@ -1,0 +1,19 @@
+# Parameters for VDR plugin softdevice
+
+# Video-Device to use
+#   allowed values: dummy shm dfb fb xv vidix ...
+SOFTDEVICE_VIDEO_OUT="fb:"
+
+# Audio-Device to use
+#   allowed values: dummy alsa ...
+SOFTDEVICE_AUDIO_OUT="alsa:mixer:pcm=default#ac3=hw:0,2#"
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=softdevice
+PLUGIN_PARAMETERS="-vo $SOFTDEVICE_VIDEO_OUT -ao $SOFTDEVICE_AUDIO_OUT"
+
+VDR_PARAMETERS=""

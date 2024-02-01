@@ -1,0 +1,11 @@
+# Parameters for VDR plugin eepg
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=eepg
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

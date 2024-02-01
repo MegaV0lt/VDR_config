@@ -1,0 +1,11 @@
+# Parameters for VDR plugin streamdev-client
+
+INIT_ACTION="/etc/vdr.d/scripts/streamdev-client"
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=streamdev-client
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

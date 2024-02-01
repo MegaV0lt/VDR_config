@@ -1,0 +1,4 @@
+# Set Yamaha RX-V Reciever to 'HDMI1'
+
+/usr/local/sbin/Yamaha_RXV_SET.sh &
+

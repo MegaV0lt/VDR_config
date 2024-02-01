@@ -1,0 +1,11 @@
+# Parameters for VDR plugin zaphistory
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=zaphistory
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

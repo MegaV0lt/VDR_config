@@ -1,0 +1,11 @@
+# Parameters for VDR plugin pluginsetup
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=pluginsetup
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

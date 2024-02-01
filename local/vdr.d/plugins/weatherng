@@ -1,0 +1,11 @@
+# Parameters for VDR plugin weatherng
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=weatherng
+PLUGIN_PARAMETERS="--script=/etc/vdr/plugins/weatherng"
+
+VDR_PARAMETERS=""

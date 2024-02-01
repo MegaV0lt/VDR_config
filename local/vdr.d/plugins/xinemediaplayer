@@ -1,0 +1,11 @@
+# Parameters for VDR plugin xinemediaplayer
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=xinemediaplayer
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

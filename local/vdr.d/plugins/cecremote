@@ -1,0 +1,11 @@
+# Parameters for VDR plugin cecremote
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=cecremote
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

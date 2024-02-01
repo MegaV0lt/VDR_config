@@ -1,0 +1,11 @@
+# Parameters for VDR plugin osdimage
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=osdimage
+PLUGIN_PARAMETERS="-d /pictures"
+
+VDR_PARAMETERS=""

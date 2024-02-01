@@ -1,0 +1,11 @@
+# Parameters for VDR plugin amarok
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=amarok
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

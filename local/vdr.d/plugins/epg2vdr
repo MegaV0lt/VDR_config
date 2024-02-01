@@ -1,0 +1,12 @@
+# Parameters for VDR plugin epg2vdr
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=epg2vdr
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""
+[ "$(pidof epgd)" == "" ] && /etc/init.d/epgd start

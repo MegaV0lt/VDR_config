@@ -1,0 +1,16 @@
+# Parameters for VDR plugin dvdconvert
+DVDCONVERT_CONF="/etc/vdr/plugins/dvdconvert/dvdconvert.conf"
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+if [ -e DVDCONVERT_CONF ] ; then
+   PLUGIN_NAME="dvdconvert"
+else   
+   PLUGIN_NAME=""
+fi   
+PLUGIN_PARAMETERS="-c ${DVDCONVERT_CONF}"
+
+VDR_PARAMETERS=""

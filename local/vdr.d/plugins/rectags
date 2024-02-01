@@ -1,0 +1,13 @@
+# Parameters for VDR plugin rectags
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=rectags
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""
+
+screen -dm sh -c "/etc/vdr/plugins/rectags/update_reclist.sh"

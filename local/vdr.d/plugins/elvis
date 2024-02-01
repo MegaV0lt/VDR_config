@@ -1,0 +1,11 @@
+# Parameters for VDR plugin elvis
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=elvis
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

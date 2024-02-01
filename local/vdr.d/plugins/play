@@ -1,0 +1,11 @@
+# Parameters for VDR plugin play
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=play
+PLUGIN_PARAMETERS=" -v vdpau:deint=3:hqscaling=0,xv,x11 "
+
+VDR_PARAMETERS=""

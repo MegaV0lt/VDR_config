@@ -1,0 +1,22 @@
+# Parameters for VDR plugin graphtft
+
+#Now you can run your VDR i.e. with the Option " -P'graphtft -d /dev/fb0' "
+#for Framebuffer use, or " -P'graphtft -d vdr/1 ' " to use the FF-VDR-Device
+#(in this case the second, we count from zero, but this is often the primary
+#device...) or " -P'graphtft -d directFB' " for Framebuffer with directFB.
+DEVICE="/dev/fb0"
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+if [ -e $DEVICE ] ; then
+   PLUGIN_NAME=graphtft
+else
+   PLUGIN_NAME=""
+fi
+PLUGIN_PARAMETERS="-d $DEVICE"
+
+[ -z "$VDR_TERMINAL" ] && VDR_TERMINAL=8
+VDR_PARAMETERS="--terminal=/dev/tty$(($VDR_TERMINAL+1))"

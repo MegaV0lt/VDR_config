@@ -1,0 +1,17 @@
+# Parameters for VDR plugin radio
+
+# Set default DIR to the background picture
+RADIO_BACKGROUND_DIR=/etc/vdr/plugins/radio
+RADIO_TMP_DIR=/tmp/vdr-radio
+[ ! -d $RADIO_BACKGROUND_DIR ] && mkdir $RADIO_BACKGROUND_DIR
+[ ! -d $RADIO_TMP_DIR ] && mkdir $RADIO_TMP_DIR
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=radio
+PLUGIN_PARAMETERS="-f ${RADIO_BACKGROUND_DIR} -d ${RADIO_TMP_DIR}"
+
+VDR_PARAMETERS=""

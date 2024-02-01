@@ -1,0 +1,12 @@
+# Parameters for VDR plugin streamdev-server
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=streamdev-server
+PLUGIN_PARAMETERS=""
+#PLUGIN_PARAMETERS="-r /etc/vdr/plugins/streamdev/externremux.sh"
+
+VDR_PARAMETERS=""

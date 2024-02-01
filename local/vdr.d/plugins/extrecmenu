@@ -1,0 +1,11 @@
+# Parameters for VDR plugin extrecmenu
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=extrecmenu
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

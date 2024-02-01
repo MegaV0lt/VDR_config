@@ -1,0 +1,17 @@
+# Parameters for VDR plugin fritzbox
+
+URL="fritz.box"
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+if ( ping -c1 -w1 "$URL" >/dev/null 2>&1 ) ; then
+   PLUGIN_NAME=fritzbox
+else
+   logger -s "Fritzbox $URL nicht erreichbar"
+   PLUGIN_NAME=""
+fi
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

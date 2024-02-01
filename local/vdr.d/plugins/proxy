@@ -1,0 +1,11 @@
+# Parameters for VDR plugin proxy
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=proxy
+PLUGIN_PARAMETERS="--menu-name FreeVo externalplayer"
+
+VDR_PARAMETERS=""

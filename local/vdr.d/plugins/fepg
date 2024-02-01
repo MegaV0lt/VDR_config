@@ -1,0 +1,11 @@
+# Parameters for VDR plugin fepg
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=fepg
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

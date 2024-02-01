@@ -1,0 +1,16 @@
+# Parameters for VDR plugin actuator
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+if [ -e /dev/actuator ] ; then
+   PLUGIN_NAME="actuator"
+else
+   logger -s "Device for actuator not found"
+   PLUGIN_NAME=""
+fi
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

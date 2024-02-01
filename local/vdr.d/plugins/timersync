@@ -1,0 +1,16 @@
+# Parameters for VDR plugin timersync
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME="timersync"
+
+if [ "${PLUGINS/ svdrpservice /}" = "$PLUGINS" ] ; then
+   logger -s "Plugin $PLUGIN_NAME disabled - svdrpservice fehlt"
+   PLUGIN_NAME=""
+fi
+      
+PLUGIN_PARAMETERS=""
+VDR_PARAMETERS=""

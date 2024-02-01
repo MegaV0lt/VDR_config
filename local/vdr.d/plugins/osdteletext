@@ -1,0 +1,25 @@
+# Parameters for VDR plugin osdteletext
+
+# #########  Expert Functions  ###################
+#
+# set the size of the videotext store
+# (when using TMPFS this is taken from RAM)
+#       allowed values: size in megabyte
+#       default: 20     # used 20 Mb for videotext
+OSDTELETEXT_SIZE=20
+
+# set the dir of the tmpfs
+#       allowed values: directory names
+#       default: /var/cache/osdteletext
+OSDTELETEXT_DIR=/tmp/osdteletext
+[ ! -d $OSDTELETEXT_DIR ] && mkdir $OSDTELETEXT_DIR
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=osdteletext
+PLUGIN_PARAMETERS="-d $OSDTELETEXT_DIR -n $OSDTELETEXT_SIZE"
+
+VDR_PARAMETERS=""

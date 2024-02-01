@@ -1,0 +1,11 @@
+# Parameters for VDR plugin vdrconvert
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=vdrconvert
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

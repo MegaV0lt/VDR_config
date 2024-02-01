@@ -1,0 +1,15 @@
+# Parameters for VDR plugin serled
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=serled
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""
+
+if [ "$PLUGIN_PARAMETERS" = "" -a ! -s /etc/vdr/serled ] ; then
+   PLUGIN_NAME=""
+fi   

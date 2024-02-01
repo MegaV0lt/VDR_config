@@ -1,0 +1,12 @@
+# Parameters for VDR plugin vaapidevice
+AUDIO_DEVICE="default"
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=vaapidevice
+PLUGIN_PARAMETERS="-a ${AUDIO_DEVICE}"
+
+VDR_PARAMETERS=""

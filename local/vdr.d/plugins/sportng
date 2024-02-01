@@ -1,0 +1,11 @@
+# Parameters for VDR plugin sportng
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=sportng
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

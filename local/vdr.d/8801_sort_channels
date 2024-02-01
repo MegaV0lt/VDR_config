@@ -1,0 +1,2 @@
+/usr/local/sbin/sort_channels.sh
+[[ "$EUID" -eq 0 ]] && chown vdr:vdr /var/lib/vdr/channels.*

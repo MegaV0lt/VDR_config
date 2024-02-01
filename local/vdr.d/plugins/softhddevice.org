@@ -1,0 +1,17 @@
+# Parameters for VDR plugin softhddevice
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+# set video module to vdpau, va-api or va-api-glx
+VIDMOD=vdpau
+
+PLUGIN_NAME=softhddevice
+#PLUGIN_PARAMETERS="-d ${DISPLAY:-:0} -g 1920x1080+0+0 -s -a 51to20 -c softvol"
+#PLUGIN_PARAMETERS="-d ${DISPLAY:-:0} -v $VIDMOD -x"
+PLUGIN_PARAMETERS="-d ${DISPLAY:-:0} -v $VIDMOD"
+
+VDR_PARAMETERS=""
+#export VDPAU_DRIVER=va_gl

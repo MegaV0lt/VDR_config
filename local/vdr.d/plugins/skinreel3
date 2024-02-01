@@ -1,0 +1,11 @@
+# Parameters for VDR plugin skinreel3
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=skinreel3
+PLUGIN_PARAMETERS="-f /usr/share/vdr/skinreel3/fonts -l /usr/share/vdr/skinreel3/channellogos --epgimages=$EPG_IMAGES"
+
+VDR_PARAMETERS=""

@@ -1,0 +1,11 @@
+# Parameters for VDR plugin sleeptimer
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=sleeptimer
+PLUGIN_PARAMETERS="-e /_config/bin/sleeptimer.sh"
+
+VDR_PARAMETERS=""

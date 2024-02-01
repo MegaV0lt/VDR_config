@@ -1,0 +1,11 @@
+# Parameters for VDR plugin alcd
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=alcd
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""

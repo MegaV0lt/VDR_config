@@ -1,0 +1,19 @@
+# Parameters for VDR plugin dvbapi
+
+#INIT_ACTION=""
+#EXIT_ACTION=""
+#RESTART_ACTION=""
+#RECORD_ACTION=""
+
+PLUGIN_NAME=dvbapi
+PLUGIN_PARAMETERS=""
+
+VDR_PARAMETERS=""
+
+if [ "$(grep "dvbapi.OSCamHost = [^l]" /etc/vdr/setup.conf)" == "" ] ; then
+   [ "$(pidof oscam)" == "" ] && /etc/init.d/oscam start
+   for i in $(seq 1 10) ; do
+      [ "$(pidof oscam)" != "" ] && break
+      sleep 1
+   done
+fi
