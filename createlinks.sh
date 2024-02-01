@@ -4,10 +4,10 @@
 # - Prüft und erzeugt fehlende links zu den Ordnern "sbin" und "vdr.d"
 # - Dateirechte setzen
 # - Aktiviert vdr_init.sh via Service-DropIn
-# - Prüft symlinks zu sendmail
+# - Prüft Symlinks zu sendmail
 # - Prüft und korrigiert ob eigen Skripte überschrieben wuden (/usr/lib/vdr)
 
-#VERSION=231017
+#VERSION=240201
 
 CONFIG_DIR='/_config'                   # Hauptordner
 LOCAL_DIR="${CONFIG_DIR}/local"         # Ordner mit den zu verlinkenden Ordnern
@@ -69,7 +69,7 @@ fi
 # Skripte von VDR die überschreiben wurden wieder herstellen
 echo '==> Aktualisiere eigenes yaVDR GIT auf angepasste Skripte…'
 if [[ -d "${YAVDR_VDR}/.git" ]] ; then
-  cd "$YAVDR_VDR"
+  cd "$YAVDR_VDR" || { echo "$YAVDR_VDR nicht gefunden!" ;}
   git pull >/dev/null  # GIT aktualisieren
   files=('merge-commands.sh' 'vdr-recordingaction' 'vdr-shutdown')
   for file in "${files[@]}" ; do
