@@ -20,11 +20,11 @@ TMP_DIR=$(mktemp -d -p /tmp)                      # Temp-Dir im RAM
 ### Funktionen
 log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
   logger -s -t "$SELF_NAME" "$*"
-  [[ -n "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
+  [[ -w "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
 }
 
 ### Start
-[[ -n "$LOG_FILE" ]] && log "==> $RUNDATE - $SELF_NAME #${VERSION} - Start..."
+[[ -w "$LOG_FILE" ]] && log "==> $RUNDATE - $SELF_NAME #${VERSION} - Start..."
 [[ ! -e "$GITDIR" ]] && log "==> Logo-Dir not found! (${LOGODIR})" && exit 1
 
 cd "$GITDIR" || exit 1

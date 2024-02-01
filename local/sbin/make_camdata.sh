@@ -17,7 +17,7 @@ printf -v RUNDATE '%(%d.%m.%Y %R)T' -1  # Aktuelles Datum und Zeit
 # Funktionen
 log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
   #logger -s -t "$(basename "${0%.*}")" "$*"
-  if [[ -n "$LOG_FILE" ]] ; then
+  if [[ -w "$LOG_FILE" ]] ; then
     echo "$*" >> "$LOG_FILE"
   else
     echo "$*"  # Ausgabe auf der Konsole
@@ -25,7 +25,7 @@ log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
 }
 
 ### Skript start!
-if [[ -n "$LOG_FILE" ]] ; then
+if [[ -w "$LOG_FILE" ]] ; then
    : #log "$RUNDATE - $(basename $0) - Start..."
 fi
 

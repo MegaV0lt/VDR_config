@@ -44,7 +44,7 @@ REC_LEN="${REC_DIR}/.rec_length"      # Angabe der Aufnahmelänge in %
 # Funktionen
 f_log() {  # Logmeldungen ins Systemlog (logger) und Log-Datei
   f_logger "$@"
-  [[ -n "$LOG_FILE" ]] && printf '[%(%F %R)T] %s\n' -1 "$@" >> "$LOG_FILE"
+  [[ -w "$LOG_FILE" ]] && printf '[%(%F %R)T] %s\n' -1 "$@" >> "$LOG_FILE"
 }
 
 f_get_se() {  # Werte für Episode und Staffel ermitteln

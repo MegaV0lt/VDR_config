@@ -22,7 +22,7 @@ printf -v NOW '%(%s)T\n'
 # --- Funktionen
 f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
   # logger -s -t "$SELF_NAME" "$*"
-  [[ -n "$LOG_FILE" ]] && echo "$(date +'%d.%m.%Y %R') [$$] $*" >> "$LOG_FILE"  # Log in Datei
+  [[ -w "$LOG_FILE" ]] && echo "$(date +'%d.%m.%Y %R') [$$] $*" >> "$LOG_FILE"  # Log in Datei
 }
 
 f_change_logo() {  # Logo anpassen

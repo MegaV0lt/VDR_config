@@ -20,7 +20,7 @@ MAX_DATE=$((NOW + 60*60*24*10))         # Maximale Timer in der Zukunft (12 Tage
 # --- Funktionen ---
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
   logger -s -t "$SELF_NAME" "$*"
-  [[ -n "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
+  [[ -w "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
 }
 
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses

@@ -66,7 +66,7 @@ NOW="$EPOCHSECONDS"                              # Aktuelle Zeit in Sekunden
 f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
   [[ -t 1 ]] && echo "$*"                         # Konsole
   logger -t "${SELF_NAME%.*}" "$*"                # Syslog
-  [[ -n "$LOG_FILE" ]] && echo "$*" 2>/dev/null >> "$LOG_FILE"  # Log in Datei
+  [[ -w "$LOG_FILE" ]] && echo "$*" 2>/dev/null >> "$LOG_FILE"  # Log in Datei
 }
 
 f_join_array() {  # Array mit angegebenen Trennzeichen zusammen fassen
@@ -75,7 +75,7 @@ f_join_array() {  # Array mit angegebenen Trennzeichen zusammen fassen
 }
 
 ### Skript start!
-[[ -n "$LOG_FILE" ]] && f_log "==> $RUNDATE - $SELF_NAME #${VERSION}- Start…"
+[[ -w "$LOG_FILE" ]] && f_log "==> $RUNDATE - $SELF_NAME #${VERSION}- Start…"
 
 if [[ -n "$1" ]] ; then  # Falls dem Skript die Tage übergeben wurden.
   [[ $1 =~ ^[0-9]+$ ]] && DAYS="$1"  # Numerischer Wert

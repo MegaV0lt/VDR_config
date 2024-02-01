@@ -16,7 +16,7 @@ SORT=1                # Liste sortieren
 ### Funktionen
 function log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
   logger -s -t $(basename ${0%.*}) "$*"
-  [ -n "$LOG_FILE" ] && echo "$*" >> "$LOG_FILE"        # Log in Datei
+  [ -w "$LOG_FILE" ] && echo "$*" >> "$LOG_FILE"        # Log in Datei
 }
 
 ### Start

@@ -28,7 +28,7 @@ printf -v RUNDATE '%(%d.%m.%Y %R)T'              # Aktuelles Datum und Zeit
 # --- Funktionen ---
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
   # logger -s -t "${SELF_NAME%.*}" "$*"
-  [[ -n "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
+  [[ -w "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
 }
 
 f_process_epfiles(){
@@ -66,7 +66,7 @@ f_process_epfiles(){
 }
 
 # --- Start ---
-[[ -n "$LOG_FILE" ]] && f_log "==> $RUNDATE - $SELF_NAME - Start..."
+[[ -w "$LOG_FILE" ]] && f_log "==> $RUNDATE - $SELF_NAME - Start..."
 
 if [[ ! -L "$EPLISTS_LINK" ]] ; then
   f_log "WARNUNG: Symlink (${EPLISTS_LINK}) fehlt!"

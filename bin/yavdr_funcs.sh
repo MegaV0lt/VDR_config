@@ -32,9 +32,10 @@ f_logger() {
 }
 
 f_rotate_log() {  # Log rotieren wenn zu groß
-  if [[ -e "${LOG_FILE:=$LOGFILE}" ]] ; then
-    FILE_SIZE="$(stat -c %s "$LOG_FILE" 2>/dev/null)"
-    [[ ${FILE_SIZE:-51201} -gt ${MAXLOGSIZE:-51200} ]] && mv --force "$LOG_FILE" "${LOG_FILE}.old"
+  local file="${LOG_FILE:-$1}"
+  if [[ -w "$file" ]] ; then  # FILE exists and write permission is granted
+    FILE_SIZE="$(stat -c %s "$file" 2>/dev/null)"
+    [[ ${FILE_SIZE:-51201} -gt ${MAX_LOG_SIZE:-51200} ]] && mv --force "$file" "${file}.old"
   fi
 }
 

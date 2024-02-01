@@ -16,7 +16,7 @@ MESSAGES=/var/log/messages           # System-Log
 CHECKUPTIME=1                        # Skript auch ausführen, wenn schon länger an?
 
 # Optionale Einstellungen
-LOG="/log/$(basename ${0%.*}).log"   # Logs sammlen
+LOG_FILE="/log/$(basename ${0%.*}).log"   # Logs sammlen
 LOGSET=/log/logset_$(date +"%d%m%Y_%H%M") # Wenn gesetzt, LogSet erstellen
 TEMPDIR="/tmp"                       # Temp im RAM
 MAILFILE="${TEMPDIR}/mail.txt"       # Für die eMail
@@ -25,7 +25,7 @@ REBOOTFLAG="/video/.rebootflag"      # Wenn gesetzt - Maximal 2 Reboot's
 # Funktionen
 function log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
   logger -s -t "$(basename ${0%.*})" "$*"
-  [ -n "$LOG" ] && echo "$(date +"%F %T") => $*" >> "$LOG" # Zusätzlich in Datei schreiben
+  [ -w "$LOG_FILE" ] && echo "$(date +"%F %T") => $*" >> "$LOG_FILE" # Zusätzlich in Datei schreiben
 }
 
 function _mail() {

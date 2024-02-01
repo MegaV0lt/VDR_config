@@ -40,7 +40,7 @@ NO_ZEROLOG=1                                    # Keine "0% Meldungen" loggen
 # --- Funktionen ---
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
   # logger -s -t $(basename ${0%.*}) "$*"  # Syslog deaktiviert, da doppelt
-  [[ -n "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
+  [[ -w "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
 }
 
 f_check_logsize() {
