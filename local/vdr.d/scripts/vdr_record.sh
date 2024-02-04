@@ -31,7 +31,7 @@ case "$1" in
     disown -a  # Alle Jobs
 
     # TVScraper Bild(er) verlinken, falls vorhanden
-    files=(banner.jpg poster.jpg fanart.jpg)  # Try images in this order
+    files=(banner.jpg poster.jpg fanart.jpg)  # Bilder in der angegebenen Reihenfolge testen
     for file in "${files[@]}" ; do
       if [[ -e "${2}/${file}" ]] ; then 
         ln --symbolic "${2}/${file}" "${2}/cover_vdr.jpg"
@@ -50,7 +50,7 @@ case "$1" in
   cut)  # When cutting a recording
     ;;
   edited)
-    # Copy files from TVScraper and epg2vdr to edited recording
+    # Dateien von TVScraper und epg2vdr zur editierten Aufnahme kopieren
     files=(fanart.jpg poster.jpg tvscrapper.json)  # TVScraper
     files+=(info.epg2vdr)                          # epg2vdr
     for file in "${files[@]}" ; do
@@ -63,7 +63,7 @@ case "$1" in
     #fi
     #[[ -z "${PLUGINS/* rectags */}" ]] && sendvdrkey.sh RED
     ;;
-  moved)  # After recording was moved
+  moved)  # After recording was moved via vdr
     ;;
   delete)  # Delete recording
     ;;
