@@ -6,7 +6,7 @@
 # oder wenn eine Aufnahme gelöscht wird. Aufgerufene Skripte müssen im Hintergrund laufen!
 # Beispiel: 'skript.sh &>/dev/null & disown' oder mit 'screen', '| at now'
 
-# VERSION=231113
+# VERSION=240204
 
 source /_config/bin/yavdr_funcs.sh
 
@@ -16,15 +16,28 @@ VDR_SCRIPT_DIR='/etc/vdr.d/scripts'  # Verzeichnis der Skripte
 
 case "$1" in
   before)
+    # 'Aufnahme' Meldung anzeigen 
     "${VDR_SCRIPT_DIR}/vdr_rec_msg.sh" "$1" "$2" &>/dev/null & disown
     ;;
-  started)  # few seconds after recording has started
+  started)  # Ein paar Sekunden nach dem Aufnahmestart
+    # Daten zur Aufnahme sammeln
     "${VDR_SCRIPT_DIR}/vdr_checkrec.sh" "$1" "$2" &>/dev/null & disown
     ;;
   after)
+    # 'Beednet' Meldung anzeigen
     "${VDR_SCRIPT_DIR}/vdr_rec_msg.sh" "$1" "$2" &>/dev/null &
+    # Aufnahme auf SxxExx und Vollsändigkeit prüfen
     "${VDR_SCRIPT_DIR}/vdr_checkrec.sh" "$1" "$2" &>/dev/null &
     disown -a  # Alle Jobs
+
+    # TVScraper Bild(er) verlinken, falls vorhanden
+    files=(banner.jpg poster.jpg fanart.jpg)  # Try images in this order
+    for file in "${files[@]}" ; do
+      if [[ -e "${2}/${file}" ]] ; then 
+        ln --symbolic "${2}/${file}" "${2}/cover_vdr.jpg"
+        break
+      fi
+    done
 
     #INFO="$2/info"
     #[[ ! -e "$INFO" ]] && INFO="$2/info.vdr"
@@ -47,10 +60,6 @@ case "$1" in
     #if [[ -n "$3" ]] ; then         # VDR > 1.7.31
     #   [[ -e "${3}/Cover-Enigma.jpg" ]] && cp -a "${3}"/*.jpg "$2"
     #   [[ -e "${3}/Cover-Enigma.png" ]] && cp -a "${3}"/*.png "$2"
-    #else
-    #   ODIR="${2//\/%//}"  # /% durch / ersetzen
-    #   [[ -e "${ODIR}/Cover-Enigma.jpg" ]] && cp -a "${ODIR}"/*.jpg "$2"
-    #   [[ -e "${ODIR}/Cover-Enigma.png" ]] && cp -a "${ODIR}"/*.png "$2"
     #fi
     #[[ -z "${PLUGINS/* rectags */}" ]] && sendvdrkey.sh RED
     ;;
