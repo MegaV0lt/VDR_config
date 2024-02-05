@@ -73,7 +73,7 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer
     [[ ${#E} -lt 2 ]] && E="0${E}"
     SE="[S${S}E${E}]"
     SUBTITLE="${BASH_REMATCH[1]:-"-"}"  # Das Treffen
-    SUBTITLE="${SUBTITLE%% }"           # Leerzeichen am Anfang entfernen
+    SUBTITLE="${SUBTITLE%% }"           # Leerzeichen am Ende entfernen
   fi
 
   # Wenn in der Beschreibung 'Staffel, Folge' entahlen ist, diese verwenden

@@ -16,7 +16,7 @@ VDR_SCRIPT_DIR='/etc/vdr.d/scripts'  # Verzeichnis der Skripte
 
 case "$1" in
   before)
-    # 'Aufnahme' Meldung anzeigen 
+    # 'Aufnahme' Meldung anzeigen
     "${VDR_SCRIPT_DIR}/vdr_rec_msg.sh" "$1" "$2" &>/dev/null & disown
     ;;
   started)  # Ein paar Sekunden nach dem Aufnahmestart
@@ -33,8 +33,8 @@ case "$1" in
     # TVScraper Bild(er) verlinken, falls vorhanden
     files=(banner.jpg poster.jpg fanart.jpg)  # Bilder in der angegebenen Reihenfolge testen
     for file in "${files[@]}" ; do
-      if [[ -e "${2}/${file}" ]] ; then 
-        ln --symbolic "${2}/${file}" "${2}/cover_vdr.jpg"
+      if [[ -e "${2}/${file}" ]] ; then
+        ln --relative --symbolic "${2}/${file}" "${2}/cover_vdr.jpg"
         break
       fi
     done
