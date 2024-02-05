@@ -53,7 +53,7 @@ fi
 #fi
 
 # Defekte Symlinks in /video entfernen
-find "$VIDEO"/ -maxdepth 1 -xtype l -print -delete | logger
+find "$VIDEO"/ -xtype l -print -delete | logger
 
 # Alte .rec löschen
 find "$VIDEO"/ -name '.rec' -type f -print -delete | logger
