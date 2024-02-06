@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # ---
 # copy2usb.sh
-# Wird aufgerufen, wenn man im VDR Aufnahmen auf USB kopiert
+# Wird aufgerufen, wenn man im VDR Aufnahmen auf USB kopiert (rec_commands)
 # ---
 
-# VERSION=230803
+# VERSION=240206
 
 if ! source /_config/bin/yavdr_funcs.sh &>/dev/null ; then  # Falls nicht vorhanden
   f_logger() { logger -t yaVDR "copy2usb.sh: $*" ;}         # Einfachere Version
@@ -75,7 +75,7 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
   } > "$CP2USB"
   chmod a+x "$CP2USB"             # Ausführbar machen
   "$CP2USB" &>/dev/null & disown  # Temporäres Skript im Hintergrund starten
-  rm "${1}/${FLAG}"
+  rm "${1}/${FLAG}"               # Kopier-Flag löschen
 else
   f_logger -s "Illegal parameter <${1}> or no usb drive found!"
   svdrpsend MESG "Ungültiger Parameter <${1}> oder kein USB-Laufwerk gefunden!"
