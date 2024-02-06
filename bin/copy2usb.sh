@@ -48,12 +48,11 @@ if [[ -e "${1}/${FLAG}" ]] ; then  # Prüfen ob kopiervorgang schon läuft
   fi
 fi
 
-: > "${1}/${FLAG}"  # Kopier-Flag erstellen
-
 IFS=' ' read -r -a TARGET_MOUNT <<< "$(grep -m 1 ' /media/vdr' /proc/mounts)"  # /dev/sdb1 /media/vdr/USB_HD ext4 rw 0 0
 TARGET="${TARGET_MOUNT[1]}"  # /media/vdr/USB_HD
 if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
-  TD="${SRC%/*}"  # "$(dirname "$SRC")"
+  : > "${1}/${FLAG}"      # Kopier-Flag erstellen
+  TD="${SRC%/*}"          # "$(dirname "$SRC")"
   SPECIALCHARS='$ ` \ "'  # Teilweise Dateisystemabhängig
   for ch in $SPECIALCHARS ; do
     TD="${TD//$ch/\\$ch}"
@@ -66,17 +65,17 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
      echo "  svdrpsend MESG \"FEHLER beim erstellen von '[${TARGET_DISK}]${VIDEO}/${TITLE}'\""
      echo 'fi'
      echo "svdrpsend MESG \"Kopiere '${TITLE}' nach [${TARGET_DISK}]${VIDEO}\""
-     echo "if rsync --archive --bwlimit=${LIMIT} \"${SRC}\" \"${TARGET}${TD}\" ; then"
+     echo "if rsync --archive --bwlimit=${LIMIT} --safe-links \"${SRC}\" \"${TARGET}${TD}\" &> "${CP2USB%.*}.rsync.log" ; then"
      echo "  svdrpsend MESG \"'${TITLE}' wurde nach [${TARGET_DISK}]${VIDEO} kopiert\""
      echo 'else'
      echo "  svdrpsend MESG \"FEHLER beim kopieren von '${TITLE}'\""
      echo '  exit 1'
      echo 'fi'
      echo ": > ${VIDEO}/.update"
-     echo "rm \"${1}/${FLAG}\""
   } > "$CP2USB"
   chmod a+x "$CP2USB"             # Ausführbar machen
   "$CP2USB" &>/dev/null & disown  # Temporäres Skript im Hintergrund starten
+  rm "${1}/${FLAG}"
 else
   f_logger -s "Illegal parameter <${1}> or no usb drive found!"
   svdrpsend MESG "Ungültiger Parameter <${1}> oder kein USB-Laufwerk gefunden!"
