@@ -65,7 +65,7 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
      echo "  svdrpsend MESG \"FEHLER beim erstellen von '[${TARGET_DISK}]${VIDEO}/${TITLE}'\""
      echo 'fi'
      echo "svdrpsend MESG \"Kopiere '${TITLE}' nach [${TARGET_DISK}]${VIDEO}\""
-     echo "if rsync --archive --bwlimit=${LIMIT} --safe-links \"${SRC}\" \"${TARGET}${TD}\" &> "${CP2USB%.*}.rsync.log" ; then"
+     echo "if rsync --archive --bwlimit=${LIMIT} --safe-links \"${SRC}\" \"${TARGET}${TD}\" &> \"${CP2USB%.*}.rsync.log\" ; then"
      echo "  svdrpsend MESG \"'${TITLE}' wurde nach [${TARGET_DISK}]${VIDEO} kopiert\""
      echo 'else'
      echo "  svdrpsend MESG \"FEHLER beim kopieren von '${TITLE}'\""
