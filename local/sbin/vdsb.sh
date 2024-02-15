@@ -11,16 +11,15 @@ source /_config/bin/yavdr_funcs.sh &>/dev/null
 
 # Variablen
 OSCAM_LOG_DIR='/mnt/MCP-Server_root/var/log/ncam'  # Log-Dir von OSCAM (Server)
-LOG_DIR='/var/log'                                # System-Logdir
+LOG_DIR='/var/log'                                 # System-Logdir
 LOG_FILE="${LOG_DIR}/${SELF_NAME%.*}.log"
-MAX_LOG_SIZE=$((1024*100))
 LOCALOSCAM_LOG="${LOG_DIR}/oscam/oscam.log"        # Lokales Log (DVBAPI)
 TMP_DIR="$(mktemp -d)"
-#KILLFLAG='/tmp/.killflag'                        # killall vdr
-XARGS_OPT=('--null' '--no-run-if-empty')         # Optionen für "xargs"
+#KILLFLAG='/tmp/.killflag'                         # killall vdr
+XARGS_OPT=('--null' '--no-run-if-empty')           # Optionen für "xargs"
 LAST_MSG="$SECONDS"  # SECONDS ist eine interne BASH-Variable
 
-trap 'f_cleanup' QUIT INT TERM EXIT              # Aufräumen beim beenden
+trap 'f_cleanup' QUIT INT TERM EXIT                # Aufräumen beim beenden
 
 # Funktionen
 f_cleanup() {  # Aufräumen
@@ -74,11 +73,9 @@ f_find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
       # Timer bestimmen
       if [[ -e "${rec_flag%.rec}.timer" ]] ; then  # .timer (VDR 2.4.0)
         TIMER_NR="$(< "${rec_flag%.rec}.timer")"   # 61@vdr01
-        #TIMER_NR="${TIMER_NR%@*}"  # 61
-        { echo -e "\n==> Timer ${TIMER_NR}:"  # 61@vdr01
-          #"$SVDRP_CMD" LSTT "${TIMER_NR%@*}"  # 61
-          mapfile -t < <("$SVDRPSEND" LSTT "${TIMER_NR%@*}")
-          IFS=":" read -r -a VDRTIMER <<< "${MAPFILE[1]}"  # Trennzeichen ist ":"
+        { echo -e "\n==> Timer ${TIMER_NR}:"
+          mapfile -t < <("$SVDRPSEND" LSTT "${TIMER_NR%@*}")  # 61
+          IFS=':' read -r -a VDRTIMER <<< "${MAPFILE[1]}"     # Trennzeichen ist ":"
           echo "${VDRTIMER[7]}"  # nano~nano
         } >> "${TMP_DIR}/info.txt"
       fi
@@ -91,7 +88,7 @@ f_find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
             TIMER_NR="${VDRTIMER[0]:4}"  # "250 " entfernen (ab 4. Zeichen)
             TIMER_NR="${TIMER_NR% *}"  # Alles nach der Timernummer entfernen
             # echo "Deaktiviere Timer Nummer $TIMER_NR (${VDRTIMER[7]})"
-            # "$SVDRP_CMD" MODT "$TIMER_NR" off  # Timer deaktivieren
+            # "$SVDRPSEND" MODT "$TIMER_NR" off  # Timer deaktivieren
             echo -e "\n==> Timer (${TIMER_NR}): $timer" >> "${TMP_DIR}/info.txt"
             break  # for Schleife beenden
           fi

@@ -26,7 +26,8 @@ f_logger() {
         parm='--stderr' ; shift ;;
       -o|--osd)
         parm='--stderr' ; shift
-        /usr/bin/vdr-dbus-send /Skin skin.QueueMessage string:"$*" ;;
+        #/usr/bin/vdr-dbus-send /Skin skin.QueueMessage string:"$*" ;;
+        f_svdrpsend MESG "$*"
     esac
     logger "$parm" --tag 'yaVDR' "[$$] ${SELF_NAME}: $*"
   fi
