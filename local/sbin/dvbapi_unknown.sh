@@ -8,6 +8,7 @@
 # Meldung via stdin an das Skript. Dazu wird eine "while" schleife verwendet.
 # Apr  1 15:00:00 hdvdr01 vdr[3389]: [3389] NALU fill dumper: 0 of 17374783 packets dropped, 0% (/video/Arrow/Seelenjagd__(S04E05)/2016-04-01.14.05.20-0.rec/00002.ts)
 
+source /_config/bin/yavdr_funcs.sh &>/dev/null
 
 # Check auf logdir (metalog Regel)
 #[ ! -d "/var/log/vdr" ] && mkdipr -p "/var/log/vdr"
@@ -104,10 +105,10 @@ if [[ "$(pidof syslog-ng)" ]] ; then  # Syslog-NG läuft
       collect_dvbapidata
     fi
     ((LOGNUM++)) ; echo "$LOGNUM" > "/tmp/~uk_command"  # +1 und speichern
-    MESG=">> 'DVBAPI Read Unknown Command' entdeckt! (${LOGNUM}) <<"
+    MESG="%>> 'DVBAPI Read Unknown Command' entdeckt! (${LOGNUM}) <<"
 
     # Meldung am VDR
-    svdrpsend MESG "$MESG"
+    f_svdrpsend MESG "$MESG"
     [[ $LOGNUM -gt 3 ]] && continue  # Weiter
 
     # Beim 2. mal VDR neu starten und Flag setzen

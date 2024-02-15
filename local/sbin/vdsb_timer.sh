@@ -21,7 +21,6 @@ LOG_DIR="/var/log"                             # System-Logdir
 LOG_FILE="${LOG_DIR}/$(basename ${0%.*}).log"
 MAX_LOG_SIZE=$((1024*50))                       # Log-Datei: Maximale gr��e in Byte
 TMP_DIR=$(mktemp -d)
-SVDRP_CMD="/usr/bin/svdrpsend"
 # F�r das "Lock"
 SCRIPTNAME=$(basename $0)
 LOCKFILE="/var/lock/${SCRIPTNAME}"
@@ -63,7 +62,7 @@ if [ "${1^^}" == "TEST" ] ; then
 fi
 
 # Meldung am VDR
-#svdrpsend MESG "$MESG"
+#f_svdrpsend MESG "$MESG"
 #[ $LOGNUM -gt 3 ] && cleanup    # Ende
 
 # Laufende Aufzeichnungen und Timer

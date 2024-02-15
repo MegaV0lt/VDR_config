@@ -18,6 +18,8 @@ VERSION=170326
 # Meldung via stdin an das Skript. Dazu wird eine "while" schleife verwendet.
 # 20.03.2017 22:08:14 - "Mar 20 22:08:14 hdvdr01 vdr[4072]: [12841] ERROR: video data stream broken"
 
+source /_config/bin/yavdr_funcs.sh &>/dev/null
+
 # Check auf logdir (metalog Regel)
 # [ ! -d "/var/log/vdr" ] && mkdipr -p "/var/log/vdr"
 
@@ -25,8 +27,6 @@ VERSION=170326
                                                    # 2: programm
                                                    # 3: Meldung
 
-SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
-SELF_NAME="${SELF##*/}"                          # skript.sh
 OSCAM_LOG_DIR='/mnt/hp-t5730_root/var/log'         # Log-Dir von OSCAM (Server)
 LOG_DIR='/var/log'                                # System-Logdir
 LOCALOSCAM_LOG="${LOG_DIR}/oscam/oscam.log"        # Lokales Log (DVBAPI)
@@ -34,7 +34,6 @@ ARCHIV="VDSB_$(date +%s).tar.xz"                 # Archivname
 TMP_DIR="$(mktemp -d)"
 MAILFILE='/tmp/~vdsb_mail.txt'
 KILLFLAG='/tmp/.killflag'                        # killall vdr
-SVDRP_CMD='svdrpsend'
 OLDIFS="$IFS"                                    # Feldtrenner merken
 LOGNUM=0 ; RINGBUFFER=0 ; cnt=0
 XARGS_OPT=('--null' '--no-run-if-empty')  # Optionen für "xargs"
@@ -86,7 +85,7 @@ find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
   set -x
   # Laufende Timer (LSTT) [Jede Zeile ein Feld]
   IFS=$'\n'
-  TIMERS=($("$SVDRP_CMD" LSTT | grep ' 9:')) ; IFS="$OLDIFS"
+  TIMERS=($("$SVDRPSEND" LSTT | grep ' 9:')) ; IFS="$OLDIFS"
   # Laufende Aufnahmen (.rec) in Array
   REC_FLAGS=($(find -L /video -name .rec -type f -print))
 
@@ -98,7 +97,7 @@ find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
         echo -e "$REC_INDEX ist älter als 20 Sekunden!\nMöglicher VDSB!"
       } >> "${TMP_DIR}/info.txt"
       # Timer bestimmen
-      if [[ "${TIMERS[@]}" =~ $REC_NAME ]] ; then  # Timer in der Liste enthalten!
+      if [[ "${TIMERS[*]}" =~ $REC_NAME ]] ; then  # Timer in der Liste enthalten!
         for timer in "${TIMERS[@]}" ; do
           if [[ "$timer" =~ $REC_NAME ]] ; then  # Timer gefunden
             IFS=":" ; VDRTIMER=($timer) ; IFS="$OLDIFS"  # Trennzeichen ist ":"
@@ -141,7 +140,7 @@ if pidof syslog-ng >/dev/null ; then  # Syslog-NG läuft
     [[ $DIFF -gt 600 ]] && LOGNUM=0  # Älter als 10 Minuten -> Bei 0 beginnen
     ((LOGNUM+=1))  # Zähler um 1 erhöhen
     if [[ $LOGNUM -lt 5 || $DIFF -ge 60 ]] ; then  # Ab 5 nur ein mal pro Minute
-      "$SVDRP_CMD" MESG ">> VDSB entdeckt! (${LOGNUM}) <<"  # Meldung am VDR
+      "$SVDRPSEND" MESG "%>> VDSB entdeckt! (${LOGNUM}) <<"  # Meldung am VDR
       LAST_MSG="$SECONDS"
     fi
 
@@ -206,7 +205,7 @@ if pidof syslog-ng >/dev/null ; then  # Syslog-NG läuft
         touch "$KILLFLAG"
         # killall vdr
         # sleep 15
-        if ! "$SVDRP_CMD" volu | grep -q '^250' ; then
+        if ! "$SVDRPSEND" volu | grep -q '^250' ; then
           : # reboot  # Falls der VDR nicht mehr reagiert
         fi
       fi  # -e $KILLFALG
@@ -265,16 +264,16 @@ else  # Metalog?
     # Log schon vorhanden (VDSB)?
     [[ -e /tmp/.lognum ]] && LOGNUM=$(</tmp/.lognum)  # Nummer einlesen
     ((LOGNUM++)) ; echo "$LOGNUM" > "/tmp/.lognum"    # +1 und speichern
-    MESG=">> VDSB entdeckt! (${LOGNUM}) <<"
+    MESG="%>> VDSB entdeckt! (${LOGNUM}) <<"
   # else
     # Log schon vorhanden (ring buffer)?
     # [ -e /tmp/.rinbuffer ] && RINGBUFFER=$(cat /tmp/.ringbuffer) # Nummer einlesen
     # ((RINGBUFFER++)) ; echo $RINGBUFFER > /tmp/.ringbuffer      # +1 und speichern
-    # MESG=">> Rinbuffer overflow! (${RINGBUFFER}) <<"
+    # MESG="%>> Rinbuffer overflow! (${RINGBUFFER}) <<"
   fi
 
   # Meldung am VDR
-  svdrpsend MESG "$MESG"
+  f_svdrpsend MESG "$MESG"
   # [[ $LOGNUM -gt 3 || $RINGBUFFER -gt 2 ]] && f_cleanup
 
   echo "$0 - $1 - $2 - $3" > "$TMP_DIR/info.txt"

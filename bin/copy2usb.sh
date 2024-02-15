@@ -34,7 +34,7 @@ TITLE="${OUT}${TITLE}"
 
 if [[ -e "${1}/.timer" ]] ; then  # Prüfen ob Aufnahme noch läuft
   f_logger "Recording $SRC still running! Aborting!"
-  svdrpsend MESG "Aufnahme \"${TITLE}\" läuft noch. Abbruch!"
+  f_svdrpsend MESG "%Aufnahme \"${TITLE}\" läuft noch. Abbruch!"
   exit 1
 fi
 
@@ -43,7 +43,7 @@ if [[ -e "${1}/${FLAG}" ]] ; then  # Prüfen ob kopiervorgang schon läuft
     rm "${1}/${FLAG}"  # Entfernen, fall älter als eine Stunde
   else
     f_logger "Recording $SRC still in copy process! Aborting!"
-    svdrpsend MESG "Aufnahme \"${TITLE}\" wird gerade kopiert. Abbruch!"
+    f_svdrpsend MESG "%Aufnahme \"${TITLE}\" wird gerade kopiert. Abbruch!"
     exit 1
   fi
 fi
@@ -61,14 +61,15 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
   TARGET_DISK="${TARGET/'/media/vdr/'}"  # USB_HD
   f_logger "Copying $1 to $TARGET"
   { echo '#!/usr/bin/env bash'
+     echo 'source /_config/bin/yavdr_funcs.sh &>/dev/null'
      echo "if ! mkdir --parents \"${TARGET}${TD}\" ; then"
-     echo "  svdrpsend MESG \"FEHLER beim erstellen von '[${TARGET_DISK}]${VIDEO}/${TITLE}'\""
+     echo "  f_svdrpsend MESG \"@FEHLER beim erstellen von '[${TARGET_DISK}]${VIDEO}/${TITLE}'\""
      echo 'fi'
-     echo "svdrpsend MESG \"Kopiere '${TITLE}' nach [${TARGET_DISK}]${VIDEO}\""
+     echo "f_svdrpsend MESG \"Kopiere '${TITLE}' nach [${TARGET_DISK}]${VIDEO}\""
      echo "if rsync --archive --bwlimit=${LIMIT} --no-links \"${SRC}\" \"${TARGET}${TD}\" &> \"${CP2USB%.*}.rsync.log\" ; then"
-     echo "  svdrpsend MESG \"'${TITLE}' wurde nach [${TARGET_DISK}]${VIDEO} kopiert\""
+     echo "  f_svdrpsend MESG \"'${TITLE}' wurde nach [${TARGET_DISK}]${VIDEO} kopiert\""
      echo 'else'
-     echo "  svdrpsend MESG \"FEHLER beim kopieren von '${TITLE}'\""
+     echo "  f_svdrpsend MESG \"@FEHLER beim kopieren von '${TITLE}'\""
      echo '  exit 1'
      echo 'fi'
      echo ": > ${VIDEO}/.update"
@@ -78,5 +79,5 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
   rm "${1}/${FLAG}"               # Kopier-Flag löschen
 else
   f_logger -s "Illegal parameter <${1}> or no usb drive found!"
-  svdrpsend MESG "Ungültiger Parameter <${1}> oder kein USB-Laufwerk gefunden!"
+  f_svdrpsend MESG "@Ungültiger Parameter <${1}> oder kein USB-Laufwerk gefunden!"
 fi

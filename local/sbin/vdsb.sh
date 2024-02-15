@@ -7,9 +7,9 @@ VERSION=230801
 # Meldung via stdin an das Skript. Dazu wird eine "while" schleife verwendet.
 # 20.03.2017 22:08:14 - "Mar 20 22:08:14 hdvdr01 vdr[4072]: [12841] ERROR: video data stream broken"
 
+source /_config/bin/yavdr_funcs.sh &>/dev/null
+
 # Variablen
-SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
-SELF_NAME="${SELF##*/}"                          # skript.sh
 OSCAM_LOG_DIR='/mnt/MCP-Server_root/var/log/ncam'  # Log-Dir von OSCAM (Server)
 LOG_DIR='/var/log'                                # System-Logdir
 LOG_FILE="${LOG_DIR}/${SELF_NAME%.*}.log"
@@ -17,7 +17,6 @@ MAX_LOG_SIZE=$((1024*100))
 LOCALOSCAM_LOG="${LOG_DIR}/oscam/oscam.log"        # Lokales Log (DVBAPI)
 TMP_DIR="$(mktemp -d)"
 #KILLFLAG='/tmp/.killflag'                        # killall vdr
-SVDRP_CMD='svdrpsend'
 XARGS_OPT=('--null' '--no-run-if-empty')         # Optionen für "xargs"
 LAST_MSG="$SECONDS"  # SECONDS ist eine interne BASH-Variable
 
@@ -59,7 +58,7 @@ f_find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
   # 250 147 1:92:2015-12-02:2005:2110:50:99:Mako - Einfach Meerjungfrau~Verirrte Mondseekräfte / Katzenjammer:<epgsearch><channel>92 - KiKA HD</channel><searchtimer>Mako - Einfach Meerjungfrau</searchtimer><start>1449083100</start><stop>1449087000</stop><s-id>358</s-id><eventid>42931</eventid></epgsearch>
   # 221 hdvdr01 closing connection
   # Laufende Timer (LSTT) [Jede Zeile ein Feld]
-  mapfile -t TIMERS < <("$SVDRP_CMD" LSTT | grep ' 9:')
+  mapfile -t TIMERS < <("$SVDRPSEND" LSTT | grep ' 9:')
   # Laufende Aufnahmen (.rec) in Array
   mapfile -t REC_FLAGS < <(find -L /video -name .rec -type f -print)
 
@@ -78,7 +77,7 @@ f_find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
         #TIMER_NR="${TIMER_NR%@*}"  # 61
         { echo -e "\n==> Timer ${TIMER_NR}:"  # 61@vdr01
           #"$SVDRP_CMD" LSTT "${TIMER_NR%@*}"  # 61
-          mapfile -t < <("$SVDRP_CMD" LSTT "${TIMER_NR%@*}")
+          mapfile -t < <("$SVDRPSEND" LSTT "${TIMER_NR%@*}")
           IFS=":" read -r -a VDRTIMER <<< "${MAPFILE[1]}"  # Trennzeichen ist ":"
           echo "${VDRTIMER[7]}"  # nano~nano
         } >> "${TMP_DIR}/info.txt"
@@ -116,11 +115,7 @@ f_log() {                                           # Akzeptiert Parameter und v
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses
 [[ -z "$MAIL_ADRESS" ]]  && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
 
-# Log prüfen
-if [[ -e "$LOG_FILE" ]] ; then  # Log-Datei umbenennen, wenn zu groß
-  FILE_SIZE="$(stat -c %s "$LOG_FILE" 2>/dev/null)"
-  [[ $FILE_SIZE -ge $MAX_LOG_SIZE ]] && mv --force "$LOG_FILE" "${LOG_FILE}.old"
-fi
+f_rotate_log  # Log rotieren
 
 # Lösche VDSB_*- und DVBAPI_UK_*-Dateien die älter als 14 Tage sind
 find "$LOG_DIR" -maxdepth 1 \( -name "VDSB_*" -o -name "DVBAPI_UK_*" \) -type f -mtime +14 -delete
@@ -147,7 +142,7 @@ if pidof "$logdaemon" >/dev/null ; then  # rsyslog läuft (yaVDR)
     [[ $DIFF -gt 600 ]] && LOGNUM=0  # Älter als 10 Minuten -> Bei 0 beginnen
     ((LOGNUM+=1))  # Zähler um 1 erhöhen
     if [[ $LOGNUM -lt 5 || $DIFF -ge 60 ]] ; then  # Ab 5 nur ein mal pro Minute
-      "$SVDRP_CMD" MESG ">> VDSB entdeckt! (${LOGNUM}) <<"  # Meldung am VDR
+      "$SVDRPSEND" MESG "%>> VDSB entdeckt! (${LOGNUM}) <<"  # Meldung am VDR
       LAST_MSG="$SECONDS"
     fi
 
