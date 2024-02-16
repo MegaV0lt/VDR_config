@@ -4,7 +4,7 @@
 # Wird aufgerufen, wenn man im VDR Aufnahmen auf USB kopiert (rec_commands)
 # ---
 
-# VERSION=240206
+# VERSION=240216
 
 if ! source /_config/bin/yavdr_funcs.sh &>/dev/null ; then  # Falls nicht vorhanden
   f_logger() { logger -t yaVDR "copy2usb.sh: $*" ;}         # Einfachere Version
@@ -40,7 +40,7 @@ fi
 
 if [[ -e "${1}/${FLAG}" ]] ; then  # Prüfen ob kopiervorgang schon läuft
   if [[ "$(stat -c %Y "${1}/${FLAG}" 2>/dev/null)" -lt $((EPOCHSECONDS - 60*60)) ]] ; then
-    rm "${1}/${FLAG}"  # Entfernen, fall älter als eine Stunde
+    rm "${1}/${FLAG}"  # Entfernen, falls älter als eine Stunde
   else
     f_logger "Recording $SRC still in copy process! Aborting!"
     f_svdrpsend MESG "%Aufnahme \"${TITLE}\" wird gerade kopiert. Abbruch!"
@@ -72,11 +72,12 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
      echo "  f_svdrpsend MESG \"@FEHLER beim kopieren von '${TITLE}'\""
      echo '  exit 1'
      echo 'fi'
+     echo "rm \"${1}/${FLAG}\""   # Kopier-Flag löschen
      echo ": > ${VIDEO}/.update"
   } > "$CP2USB"
   chmod a+x "$CP2USB"             # Ausführbar machen
   "$CP2USB" &>/dev/null & disown  # Temporäres Skript im Hintergrund starten
-  rm "${1}/${FLAG}"               # Kopier-Flag löschen
+
 else
   f_logger -s "Illegal parameter <${1}> or no usb drive found!"
   f_svdrpsend MESG "@Ungültiger Parameter <${1}> oder kein USB-Laufwerk gefunden!"

@@ -14,7 +14,7 @@
 # Aufruf bei 'startet' und 'after':
 #   /etc/vdr.d/scripts/vdr_checkrec.sh "$1" "$2" &>/dev/null & disown
 
-# VERSION=231212
+# VERSION=240216
 
 if ! source /_config/bin/yavdr_funcs.sh &>/dev/null ; then  # Falls nicht vorhanden
   f_logger() { logger -t yaVDR "vdr_checkrec.sh: $*" ;}     # Einfachere Version
@@ -55,7 +55,10 @@ f_get_se() {  # Werte für Episode und Staffel ermitteln
       [[ "$line" =~ $re_s ]] && printf -v STAFFEL '%02d' "${BASH_REMATCH[1]}"
       [[ "$line" =~ $re_e ]] && printf -v EPISODE '%02d' "${BASH_REMATCH[1]}"
     fi  # ^D
-    [[ "$line" =~ ^F' ' ]] && FRAMERATE="${line#F }"   # 25
+    if [[ "$line" =~ ^F' ' ]] ; then  # Bildwiederholfrequenz
+      re='^F ([0-9]+)'
+      [[ "$line" =~ $re ]] && printf -v FRAMERATE '%d' "${BASH_REMATCH[1]}"  # 25
+    fi
     [[ "$line" =~ ^O' ' ]] && REC_ERRORS="${line#O }"  # 768
   done
   [[ -n "$STAFFEL" && -n "$EPISODE" ]] && SE="(S${STAFFEL}E${EPISODE})"  # (SxxExx)
@@ -104,7 +107,7 @@ case "$1" in
     TIMER_LENGTH=$((STOP - START))                # Länge in Sekunden
 
     # Ermittelte Werte für später Speichern
-    { echo "TIMER_ID=$TIMER_ID" ; echo "VDR_TIMER=\"${VDR_TIMER[*]}\""
+    { echo "TIMER_ID=$TIMER_ID" ; echo "VDR_TIMER=\"${VDR_TIMER[*]%$'\r'}\""
       echo "START=$START"       ; echo "STOP=$STOP"
       echo "TIMER_LENGTH=$TIMER_LENGTH"
     } > "$REC_INFOS"  # .checkrec
@@ -232,9 +235,10 @@ case "$1" in
     ;;
 esac
 
-if [[ -e "$LOG_FILE" ]] ; then  # Log-Datei umbenennen, wenn zu groß
-  FILE_SIZE="$(stat -c %s "$LOG_FILE" 2>/dev/null)"
-  [[ $FILE_SIZE -ge $MAX_LOG_SIZE ]] && mv --force "$LOG_FILE" "${LOG_FILE}.old"
-fi
+#if [[ -e "$LOG_FILE" ]] ; then  # Log-Datei umbenennen, wenn zu groß
+#  FILE_SIZE="$(stat -c %s "$LOG_FILE" 2>/dev/null)"
+#  [[ $FILE_SIZE -ge $MAX_LOG_SIZE ]] && mv --force "$LOG_FILE" "${LOG_FILE}.old"
+#fi
+f_rotate_log  # Log-Datei umbenennen, wenn zu groß
 
 exit
