@@ -48,12 +48,13 @@ chown --recursive vdr:vdr "$CONFIG_DIR"  # Eigentümer auf 'vdr' setzen
 chmod --recursive 755 "$CONFIG_DIR"      # Rechte auf 755
 
 # Aktivieren von vdr_init.sh
-if [[ ! -e '/etc/systemd/system/vdr.service.d/pre-start.conf' ]] ; then
-  echo '==> Erstelle /etc/systemd/system/vdr.service.d/pre-start.conf'
+VDR_PRE_START_CONF='/etc/systemd/system/vdr.service.d/pre-start.conf'
+if [[ ! -e "$VDR_PRE_START_CONF" ]] ; then
+  echo "==> Erstelle $VDR_PRE_START_CONF"
   mkdir --parents /etc/systemd/system/vdr.service.d
   { echo '[Service]'
     echo 'ExecStartPre=/etc/vdr.d/scripts/vdr_init.sh'
-  } > /etc/systemd/system/vdr.service.d/pre-start.conf
+  } > "$VDR_PRE_START_CONF"
   systemctl daemon-reload  # Units neu einlesen
 fi
 

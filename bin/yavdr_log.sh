@@ -71,7 +71,7 @@ for i in /proc/asound/card[0-9] ; do
 done
 
 tar -cJf "$LOG_ARCH" .
-svdrps MESG "$LOG_ARCH wurde erstellt"
+f_svdrpsend MESG "$LOG_ARCH wurde erstellt"
 f_logger -s "$LOG_ARCH wurde erstellt"
 cd ..
 rm -rf "$LOG_DIR"
@@ -81,11 +81,11 @@ if [[ "$OUTPUT" == '-m' ]] ; then
     OUTPUT="${TARGET}/"
     cp -f "$LOG_ARCH" "$TARGET/"
     sleep 3
-    svdrps MESG "$LOG_ARCH wurde nach $TARGET kopiert"
+    f_svdrpsend MESG "$LOG_ARCH wurde nach $TARGET kopiert"
     f_logger -s "$LOG_ARCH wurde nach $TARGET kopiert"
   fi
 elif [[ -n "$OUTPUT" ]] ; then
   cp "$LOG_ARCH" "$OUTPUT.tar.xz"
-  svdrps MESG "$LOG_ARCH wurde nach $OUTPUT.tar.xz kopiert"
+  f_svdrpsend MESG "$LOG_ARCH wurde nach $OUTPUT.tar.xz kopiert"
   f_logger -s "$LOG_ARCH wurde nach $OUTPUT.tar.xz kopiert"
 fi

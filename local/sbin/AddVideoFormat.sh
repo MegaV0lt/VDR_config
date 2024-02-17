@@ -7,41 +7,41 @@
 
 ### Functions
 f_find_frameinfo() {
-  f_line=($(grep '^F ' "$INFO" 2>/dev/null))
-  #echo "  > Found in 'info': ${f_line[*]}"
-  [[ "${#f_line[*]}" -lt 2 ]] && return 1   # No Framerate. Propably an old PES recording
-  [[ "${#f_line[*]}" -eq 2 ]] && fps="${f_line[1]}" && return 0   # TS recording, but only framerate set
-  [[ "${#f_line[*]}" -eq 6 ]] && return 2   # Frameinfos already set (VDR >= 2.6.5)
+  read -r -a F_LINE < <(grep '^F ' "$INFO" 2>/dev/null)
+  #echo "  > Found in 'info': ${F_LINE[*]}"
+  [[ "${#F_LINE[*]}" -eq 2 ]] && { FPS="${F_LINE[1]}" ; return 0 ;}  # TS recording, but only framerate set
+  [[ "${#F_LINE[*]}" -eq 6 ]] && return 2   # Frameinfos already set (VDR >= 2.6.5)
+  [[ "${#F_LINE[*]}" -lt 2 ]] && return 1   # No Framerate. Propably an old PES recording
 }
 
 f_check_video() {
-  width='' ; height='' ; aspect_ratio='' ; scantype='' ; frame_rate=''
-  local key='' value=''
-  local ts_file="${dir}/00001.ts"  # TODO: What if first file is too small?
+  WIDTH='' ; HEIGHT='' ; ASPECT_RATIO='' ; SCAN_TYPE='' ; FRAME_RATE=''
+  local key='' result='' value=''
+  local ts_file="${REC_DIR}/00001.ts"  # TODO: What if first file is too small?
             # Read only 100 packets after seeking to position 09:23: 09:23%+#100
-  result=($(ffprobe -v fatal -select_streams v:0 -read_intervals 9:23%+#100 \
-            -show_entries stream=width,height,display_aspect_ratio,field_order,r_frame_rate \
-            -of default=nw=1:nk=0 "$ts_file"))
+  read -r -a result < <(ffprobe -v fatal -select_streams v:0 -read_intervals 9:23%+#100 \
+            -show_entries stream=WIDTH,HEIGHT,display_ASPECT_RATIO,field_order,r_FRAME_RATE \
+            -of default=nw=1:nk=0 "$ts_file")
   #echo "  > ffprobe result: ${result[*]}"
   for line in "${result[@]}" ; do
     key="${line%=*}" ; value="${line#*=}"
     case "$key" in
-      'width')                width="$value" ;;
-      'height')               height="$value" ;;
-      'display_aspect_ratio') aspect_ratio="$value" ;;
-      'field_order')          scantype=$(echo "$value" | sed -r 's/[bt][bt]/i/g; s/progressive/p/; /^[ip]$/!s/.*/-/') ;;
-      'r_frame_rate')         frame_rate="$value" ;;
+      'WIDTH')                WIDTH="$value" ;;
+      'HEIGHT')               HEIGHT="$value" ;;
+      'display_ASPECT_RATIO') ASPECT_RATIO="$value" ;;
+      'field_order')          SCAN_TYPE=$(echo "$value" | sed -r 's/[bt][bt]/i/g; s/progressive/p/; /^[ip]$/!s/.*/-/') ;;
+      'r_FRAME_RATE')         FRAME_RATE="$value" ;;
     esac
   done
-  [[ -n "$width" && -n "$height" && -n "$aspect_ratio" && -n "$scantype" && -n "$frame_rate" ]] &&
+  [[ -n "$WIDTH" && -n "$HEIGHT" && -n "$ASPECT_RATIO" && -n "$SCAN_TYPE" && -n "$FRAME_RATE" ]] &&
     return 0  # Everything found…
   return 1  # Error detecting values
 }
 
 f_insert_framedata() {
-  # Order of parameters: Framerate, Width, Height, Scantype, Aspectratio
-  echo "  > Inserting: F $fps $width $height $scantype $aspect_ratio"
-  sed -i -e "s|^F .*|F $fps $width $height $scantype ${aspect_ratio}|" "$INFO"
+  # Order of parameters: Framerate, Width, Height, SCAN_TYPE, Aspectratio
+  echo "  > Inserting: F $FPS $WIDTH $HEIGHT $SCAN_TYPE $ASPECT_RATIO"
+  sed -i -e "s|^F .*|F $FPS $WIDTH $HEIGHT $SCAN_TYPE ${ASPECT_RATIO}|" "$INFO"
 }
 
 f_check_backup() {
@@ -72,7 +72,7 @@ f_help() {
   echo "$0 Usage:"
   echo -e "\t$0 -f  Force processing of already processed 'info'. Reuse of original 'info'!"
   echo -e "\t$0 -r  Restore backed up 'info' files"
-  echo -e "\t$0 -v VIDEO_DIR  Path to VDR's video directory (default: /video)"
+  echo -e "\t$0 -v VIDEO_REC_DIR  Path to VDR's video REC_DIRectory (default: /video)"
   exit 0
 }
 
@@ -92,10 +92,10 @@ if [[ ! -r "${VIDEO:=/video}" ]]; then
   exit 1
 fi
 
-while IFS= read -r dir; do
-  INFO="${dir}/info"
+while IFS= read -r REC_DIR; do
+  INFO="${REC_DIR}/info"
   ((cnt+=1))
-  echo "=> (${cnt}) Checking ${dir}"
+  echo "=> (${cnt}) Checking ${REC_DIR}"
   if [[ "${RESTORE:=false}" == 'true' ]] ; then
     f_restore
   else
@@ -112,7 +112,7 @@ while IFS= read -r dir; do
     f_find_frameinfo || continue
 
     if f_check_video ; then
-      echo "  > ffprobe got ${width}x${height} @ ${fps} scantype: $scantype  ar: ${aspect_ratio}"
+      echo "  > ffprobe got ${WIDTH}x${HEIGHT} @ ${FPS} scan_type: $SCAN_TYPE  ar: ${ASPECT_RATIO}"
       f_insert_framedata
     else
       echo "  !> ffprobe error!"
