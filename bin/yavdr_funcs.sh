@@ -33,9 +33,22 @@ f_logger() {
   fi
 }
 
+f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
+  [[ -t 1 ]] && echo "$*"      # Konsole
+  logger -t "$SELF_NAME" "$*"  # Syslog
+  [[ -w "${LOG_FILE:-/dev/null}" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
+}
+
+f_log2() {                                           
+  local data=("${@:-$(</dev/stdin)}")               # Akzeptiert Parameter und via stdin (|)
+  [[ -t 1 ]] && printf '%s\n' "${data[@]}"          # Konsole falls verbunden
+  logger -t "$SELF_NAME" "${data[@]}"               # Systemlog
+  [[ -w "${LOG_FILE:-/dev/null}" ]] && printf '%s\n' "${data[@]}" >> "$LOG_FILE"  # Log-Datei
+}
+
 f_rotate_log() {  # Log rotieren wenn zu groß
   local file="${LOG_FILE:-$1}"
-  if [[ -w "$file" ]] ; then  # FILE exists and write permission is granted
+  if [[ -w "$file" ]] ; then  # Datei Existiert und hat Schreibrechte
     FILE_SIZE="$(stat -c %s "$file" 2>/dev/null)"
     [[ ${FILE_SIZE:-51201} -gt ${MAX_LOG_SIZE:-51200} ]] && mv --force "$file" "${file}.old"
   fi

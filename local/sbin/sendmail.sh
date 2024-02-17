@@ -28,7 +28,7 @@ f_log() {                                           # Akzeptiert Parameter und v
 
 ### Start
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses
-[[ -z "$MAIL_ADRESS" ]]  && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
+[[ -z "$MAIL_ADRESS" ]] && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
 printf '%s %(%F %R)T %b\n' '==>' -1 "- $SELF_NAME #${VERSION}" | f_log
 f_log "[i] Parameter ($#): $*"
 

@@ -2,7 +2,7 @@
 
 # cleanchannels.sh - Kanalliste des VDR aufräumen
 # Author: MegaV0lt
-VERSION=230802
+VERSION=240217
 
 # 01.09.2013: Leere Kanalgruppen werden entfernt
 #             Neu-Marker wird nur gesetz, wenn auch bereits Kanäle seit dem
@@ -75,7 +75,7 @@ f_join_array() {  # Array mit angegebenen Trennzeichen zusammen fassen
 }
 
 ### Skript start!
-[[ -w "$LOG_FILE" ]] && f_log "==> $RUNDATE - $SELF_NAME #${VERSION}- Start…"
+f_log "==> $RUNDATE - $SELF_NAME #${VERSION}- Start…"
 
 if [[ -n "$1" ]] ; then  # Falls dem Skript die Tage übergeben wurden.
   [[ $1 =~ ^[0-9]+$ ]] && DAYS="$1"  # Numerischer Wert

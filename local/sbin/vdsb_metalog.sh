@@ -120,7 +120,7 @@ find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
 
 # --- Start ---
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses
-[[ -z "$MAIL_ADRESS" ]]  && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
+[[ -z "$MAIL_ADRESS" ]] && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
 
 if pidof syslog-ng >/dev/null ; then  # Syslog-NG läuft
   while read -r ; do

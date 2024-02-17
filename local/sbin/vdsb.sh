@@ -100,17 +100,10 @@ f_find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
   done # ; set +x
 }
 
-f_log() {                                           # Akzeptiert Parameter und via stdin (|)
-  local data=("${@:-$(</dev/stdin)}")
-  printf '%s\n' "${data[@]}" 2>/dev/null >> "${LOG:-/dev/null}"  # Log-Datei
-  [[ -t 1 ]] && printf '%s\n' "${data[@]}"          # Konsole falls verbunden
-  logger -t "$SELF_NAME" "${data[@]}"               # Systemlog
-}
-
 # --- Start ---
 
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses
-[[ -z "$MAIL_ADRESS" ]]  && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
+[[ -z "$MAIL_ADRESS" ]] && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
 
 f_rotate_log  # Log rotieren
 

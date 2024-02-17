@@ -4,7 +4,7 @@
 #+der Beschreibung die Werte für Staffel und Episode zu extrahieren (Sky-Kanäle)
 # Zusätzlich werden im TITLE enthaltene Klammern in den SUBTITLE verschoben:
 # 'Serienname (5/6)~Folgenname' -> 'Serienname~Folgenname (5/6)'
-#VERSION=240131
+#VERSION=240217
 
 #Folgende Variablen sind bereits intern definiert und können verwendet werden.
 # %title%          - Title der Sendung
@@ -34,6 +34,7 @@
 # %epgsearchdir%   - epgsearchs Verzeichnis für Konfiguratzionsdateien (z.B. /etc/vdr/plugins/epgsearch)
 
 #%Get_SE%=system(/usr/local/sbin/get_se.sh, %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_w% %date% %time%)
+#%Get_SE%=system(/usr/local/sbin/get_se.sh, %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_lng%)
 #                                            0       1          2         3         4       5         6        7      8
 #SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
 #SELF_NAME="${SELF##*/}"                          # skript.sh
@@ -72,8 +73,8 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer
     [[ ${#S} -lt 2 ]] && S="0${S}"
     [[ ${#E} -lt 2 ]] && E="0${E}"
     SE="[S${S}E${E}]"
-    SUBTITLE="${BASH_REMATCH[1]:-"-"}"  # Das Treffen
-    SUBTITLE="${SUBTITLE%% }"           # Leerzeichen am Ende entfernen
+    SUBTITLE="${BASH_REMATCH[1]}"  # Das Treffen
+    SUBTITLE="${SUBTITLE%% }"      # Leerzeichen am Ende entfernen
   fi
 
   # Wenn in der Beschreibung 'Staffel, Folge' entahlen ist, diese verwenden
@@ -87,7 +88,8 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer
   fi
 
   if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017.03.07-23|00-Di
-    SUBTITLE="${DATA[6]}_${DATA[7]}_${DATA[8]}"  # Sendezeit, falls Leer
+    # SUBTITLE="${DATA[6]}_${DATA[7]}_${DATA[8]}"  # Sendezeit, falls Leer
+    printf -v SUBTITLE '%(%Y.%m.%d-%H|%M-%a)T' "${DATA[6]}"
   fi
 
   [[ -n "$FOUND_BRACE" ]] && SUBTITLE+=" $FOUND_BRACE"

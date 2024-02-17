@@ -10,7 +10,7 @@ SELF_NAME="${SELF##*/}"
 LOG_FILE="${LOG_DIR}/${SELF_NAME%.*}.log"         # Logdatei
 
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses
-[[ -z "$MAIL_ADRESS" ]]  && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
+[[ -z "$MAIL_ADRESS" ]] && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
 
 # Parameter verwenden wenn angegeben
 if [[ -n "$1" ]] ; then

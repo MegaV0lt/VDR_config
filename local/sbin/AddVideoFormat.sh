@@ -20,17 +20,17 @@ f_check_video() {
   local ts_file="${REC_DIR}/00001.ts"  # TODO: What if first file is too small?
             # Read only 100 packets after seeking to position 09:23: 09:23%+#100
   read -r -a result < <(ffprobe -v fatal -select_streams v:0 -read_intervals 9:23%+#100 \
-            -show_entries stream=WIDTH,HEIGHT,display_ASPECT_RATIO,field_order,r_FRAME_RATE \
+            -show_entries stream=width,height,display_aspect_ratio,field_order,r_frame_rate \
             -of default=nw=1:nk=0 "$ts_file")
   #echo "  > ffprobe result: ${result[*]}"
   for line in "${result[@]}" ; do
     key="${line%=*}" ; value="${line#*=}"
     case "$key" in
-      'WIDTH')                WIDTH="$value" ;;
-      'HEIGHT')               HEIGHT="$value" ;;
-      'display_ASPECT_RATIO') ASPECT_RATIO="$value" ;;
+      'width')                WIDTH="$value" ;;
+      'height')               HEIGHT="$value" ;;
+      'display_aspect_ratio') ASPECT_RATIO="$value" ;;
       'field_order')          SCAN_TYPE=$(echo "$value" | sed -r 's/[bt][bt]/i/g; s/progressive/p/; /^[ip]$/!s/.*/-/') ;;
-      'r_FRAME_RATE')         FRAME_RATE="$value" ;;
+      'r_frame_rate')         FRAME_RATE="$value" ;;
     esac
   done
   [[ -n "$WIDTH" && -n "$HEIGHT" && -n "$ASPECT_RATIO" && -n "$SCAN_TYPE" && -n "$FRAME_RATE" ]] &&

@@ -2,7 +2,7 @@
 
 # eplists_check.sh - nach fehlenden Serienangeben von eplists suchen  (SxxExx)
 # Author MegaV0lt
-VERSION=230402
+VERSION=240217
 
 # --- Variablen ---
 SELF="$(readlink /proc/$$/fd/255)"      # Eigener Pfad (besseres $0)
@@ -15,16 +15,16 @@ MAX_LOG_SIZE=$((1024*50))                # Log-Datei: Maximale größe in Byte
 # eMail
 declare -a NF_TIMER TVSCRAPER_TIMER     # Array's
 printf -v NOW '%(%s)T' -1               # Jetzt in Sekunden
-MAX_DATE=$((NOW + 60*60*24*10))         # Maximale Timer in der Zukunft (12 Tage)
+MAX_DATE=$((NOW + 60*60*24*10))         # Maximale Timer in der Zukunft (10 Tage)
 
 # --- Funktionen ---
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
-  logger -s -t "$SELF_NAME" "$*"
+  logger -t "$SELF_NAME" "$*"
   [[ -w "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
 }
 
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses
-[[ -z "$MAIL_ADRESS" ]]  && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
+[[ -z "$MAIL_ADRESS" ]] && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
 
 mapfile -t TIMERS < "$TIMERS_CONF"  # Timer vom VDR einlesen
 
@@ -63,11 +63,11 @@ for i in "${!TIMERS[@]}" ; do
 done
 
 # Mail senden
-if [[ -n "${NF_TIMER[*]}" ]] ; then
+if [[ -n "${NF_TIMER[*]}" || -n "${TVSCRAPER_TIMER[*]}" ]] ; then
   { echo "From: \"${HOSTNAME^^}\"<${MAIL_ADRESS}>"
     echo "To: $MAIL_ADRESS"
     echo 'Content-Type: text/plain; charset=UTF-8'
-    echo "Subject: eplist-Eintrag nicht gefunden (${#NF_TIMER[@]})"
+    echo "Subject: eplist-Eintrag nicht gefunden (${#NF_TIMER[@]}/${#TVSCRAPER_TIMER[@]})"
     echo -e "\n${SELF_NAME} #${VERSION}"
 
     # Aktive Timer ohne (SxxExx)

@@ -29,7 +29,7 @@ LOG="/var/log/${SELF_NAME%.*}.log"                # Logs sammlen
 # --- Funktionen ---
 f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
   logger -s -t "${SELF_NAME%.*}" "$*"
-  [[ -n "$LOG" ]] && echo "$(date +"%F %T") => $*" >> "$LOG"  # Zusätzlich in Datei schreiben
+  [[ -w "$LOG" ]] && echo "$(date +"%F %T") => $*" >> "$LOG"  # Zusätzlich in Datei schreiben
 }
 
 # --- Start ---

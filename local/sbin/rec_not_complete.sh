@@ -91,7 +91,7 @@ find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
 # --- Start ---
 
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses
-[[ -z "$MAIL_ADRESS" ]]  && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
+[[ -z "$MAIL_ADRESS" ]] && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
 
 #May 25 00:17:00 vdr01 vdr[4029]: epg2vdr: Info: Recording 'The Break – Jeder kann töten~Willkommen in Heiderfeld' finished - NOT complete (91%)
 if pidof syslog-ng >/dev/null ; then  # Syslog-NG läuft

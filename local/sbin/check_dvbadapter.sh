@@ -64,7 +64,7 @@ function checkreboot() {
 
 # Skript start!
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses
-[[ -z "$MAIL_ADRESS" ]]  && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
+[[ -z "$MAIL_ADRESS" ]] && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
 
 if [ "$CHECKUPTIME" != "1" ] ; then                        # Nur wenn nicht 1
   UPTIME=( $(cat /proc/uptime) )                           # Get UpTime Values
