@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # This file has to be included via source command
-# VERSION=230529
+# VERSION=240217
 
 trap f_exit EXIT
 
@@ -53,25 +53,17 @@ f_svdrps() {
 
 f_svdrpsend() {
   if [[ "${1^^}" == 'MESG' ]] ; then
-    if f_vdr_has_msgt ; then
-      "$SVDRPSEND" MSGT "${@:2}"
-    else
-      : "${2#@}" ; clean_arg="${_#%}"  # '%' und '@' entfernen
+    mapfile -t < <("$SVDRPSEND" MSGT "${@:2}")  # Prüfen ob VDR den Befehl kennt
+    # 220 vdr01 SVDRP VideoDiskRecorder 2.6.1; Thu Oct 27 15:30:24 2022; UTF-8
+    # 501 Missing message / 500 Command unrecognized: "MSGT"
+    # 221 vdr01 closing connection
+    if [[ "${MAPFILE[1]}" == "500"* ]] ; then  # MSGT nicht vorhanden
+      : "${2#@}" ; clean_arg="${_#%}"          # '%' oder '@' entfernen
       "$SVDRPSEND" MESG "$clean_arg" "${@:3}"
     fi
   else
     "$SVDRPSEND" "$@"  # Für alles andere durchreichen
   fi
-}
-
-f_vdr_has_msgt() {
-  mapfile -t < <("$SVDRPSEND" MSGT)  # Prüfen ob VDR den Befehl kennt
-  # 220 vdr01 SVDRP VideoDiskRecorder 2.6.1; Thu Oct 27 15:30:24 2022; UTF-8
-  # 501 Missing message / 500 Command unrecognized: "MSGT"
-  # 221 vdr01 closing connection
-  [[ "${MAPFILE[1]}" == "501"* ]] && return 0   # MSGT vorhanden
-  # [[ "${MAPFILE[1]}" == "500"* ]] && return false  # Kein MSGT
-  return 1
 }
 
 f_logger '<START>'
