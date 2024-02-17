@@ -46,11 +46,6 @@ f_strstr() {  # strstr echoes nothing if s2 does not occur in s1
   return 1
 }
 
-f_svdrps() {
-  f_logger "$SVDRPSEND $*"
-  "$SVDRPSEND" "$@"
-}
-
 f_svdrpsend() {
   if [[ "${1^^}" == 'MESG' ]] ; then
     mapfile -t < <("$SVDRPSEND" MSGT "${@:2}")  # Prüfen ob VDR den Befehl kennt
