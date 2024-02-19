@@ -132,7 +132,7 @@ if pidof "$logdaemon" >/dev/null ; then  # rsyslog läuft (yaVDR)
     [[ $DIFF -gt 600 ]] && LOGNUM=0  # Älter als 10 Minuten -> Bei 0 beginnen
     ((LOGNUM+=1))  # Zähler um 1 erhöhen
     if [[ $LOGNUM -lt 5 || $DIFF -ge 60 ]] ; then  # Ab 5 nur ein mal pro Minute
-      "$SVDRPSEND" MESG "%>> VDSB entdeckt! (${LOGNUM}) <<"  # Meldung am VDR
+      f_svdrpsend MESG "%>> VDSB entdeckt! (${LOGNUM}) <<"  # Meldung am VDR
       LAST_MSG="$SECONDS"
     fi
 
@@ -224,6 +224,7 @@ if pidof "$logdaemon" >/dev/null ; then  # rsyslog läuft (yaVDR)
        } | /usr/sbin/sendmail root
     fi
   done
+  
   f_cleanup
 else  # Metalog?
   echo "$SELF_NAME - $1 - $2 - $3"
