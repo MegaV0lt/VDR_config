@@ -4,7 +4,7 @@
 #+der Beschreibung die Werte für Staffel und Episode zu extrahieren (Sky-Kanäle)
 # Zusätzlich werden im TITLE enthaltene Klammern in den SUBTITLE verschoben:
 # 'Serienname (5/6)~Folgenname' -> 'Serienname~Folgenname (5/6)'
-#VERSION=240217
+#VERSION=240220
 
 #Folgende Variablen sind bereits intern definiert und können verwendet werden.
 # %title%          - Title der Sendung
@@ -33,9 +33,8 @@
 # %plugconfdir%    - VDRs Verzeichnis für Plugin-Konfigurationsdateien (z.B. /etc/vdr/plugins)
 # %epgsearchdir%   - epgsearchs Verzeichnis für Konfiguratzionsdateien (z.B. /etc/vdr/plugins/epgsearch)
 
-#%Get_SE%=system(/usr/local/sbin/get_se.sh, %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_w% %date% %time%)
 #%Get_SE%=system(/usr/local/sbin/get_se.sh, %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_lng%)
-#                                            0       1          2         3         4       5         6        7      8
+#                                            0       1          2         3         4       5         6
 #SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
 #SELF_NAME="${SELF##*/}"                          # skript.sh
 DATA=("$@")                                       # Übergebene Daten in ein Array
@@ -63,34 +62,49 @@ if [[ "$TITLE" =~ $re ]] ; then  #* Titel enthält Klammern am Ende!
   : "${TITLE%"${FOUND_BRACE}"}" ; TITLE="${_%%' '}"  # Klammern (und Leerzeichen) entfernen
 fi
 
-if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer
+if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
   # EPG Beispiel Canal+ First:
   # Woke~Das Treffen S01 E08. Monate später glaubt Keef, dass er endlich an einem besseren Ort angekommen...
-  re='(.*)S([0-9]*) E([0-9]*)' #(. [a-z]*)'
+  re='(.*)S([0-9]+) E([0-9]+)' #(. [a-z]*)'
   if [[ "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält Sxx Exx
     S="${BASH_REMATCH[2]}"  # 01
     E="${BASH_REMATCH[3]}"  # 08
-    [[ ${#S} -lt 2 ]] && S="0${S}"
-    [[ ${#E} -lt 2 ]] && E="0${E}"
-    SE="[S${S}E${E}]"
     SUBTITLE="${BASH_REMATCH[1]}"  # Das Treffen
     SUBTITLE="${SUBTITLE%% }"      # Leerzeichen am Ende entfernen
   fi
 
-  # Wenn in der Beschreibung 'Staffel, Folge' entahlen ist, diese verwenden
-  if [[ "${DATA[5]:0:25}" =~ 'Staffel, Folge' ]] ; then  #* Beschreibung enthält x. Staffel, Folge x:
-    SE="${DATA[5]%%\:*}"  # :* abschneiden (1. Staffel, Folge 3)
-    S="${SE%%\.*}"        # .* abschneiden (1)
-    E="${SE##*Folge }"    # '*Folge ' abschneiden (3)
-    [[ ${#S} -lt 2 ]] && S="0${S}"
-    [[ ${#E} -lt 2 ]] && E="0${E}"
-    SE="[S${S}E${E}]"
+  # EPG Beispiel 3+:
+  # Superstar~Staffel 01 - Folge 03: Highlights (1) / Castingshow, Schweiz 2006
+  re='Staffel ([0-9]+).*Folge ([0-9]+)(.*)'
+  if [[ -z "$S" && "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält Sxx Exx
+    S="${BASH_REMATCH[1]}"  # 01
+    E="${BASH_REMATCH[2]}"  # 03
+    SUBTITLE="${BASH_REMATCH[3]}"  # : Highlights (1) / Castingshow, Schweiz 2006
+    re='^[:/ ]'
+    while [[ "$SUBTITLE" =~ $re ]] ; do  # Alle Leerzeichen, '/' oder ':' entfernen
+      SUBTITLE="${SUBTITLE:1}"
+    done
   fi
+
+  # Wenn in der Beschreibung 'Staffel, Folge' entahlen ist, diese verwenden
+  #if [[ "${DATA[5]:0:25}" =~ 'Staffel, Folge' ]] ; then  #* Beschreibung enthält x. Staffel, Folge x:
+  #  SE="${DATA[5]%%\:*}"  # :* abschneiden (1. Staffel, Folge 3)
+  #  S="${SE%%\.*}"        # .* abschneiden (1)
+  #  E="${SE##*Folge }"    # '*Folge ' abschneiden (3)
+  #  [[ ${#S} -lt 2 ]] && S="0${S}"
+  #  [[ ${#E} -lt 2 ]] && E="0${E}"
+  #  SE="[S${S}E${E}]"
+  #fi
 
   if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017.03.07-23|00-Di
     # SUBTITLE="${DATA[6]}_${DATA[7]}_${DATA[8]}"  # Sendezeit, falls Leer
     printf -v SUBTITLE '%(%Y.%m.%d-%H|%M-%a)T' "${DATA[6]}"
   fi
+
+  # Erstellen von [SxxExx]
+  [[ ${#S} -lt 2 ]] && S="0${S}"
+  [[ ${#E} -lt 2 ]] && E="0${E}"
+  SE="[S${S}E${E}]"
 
   [[ -n "$FOUND_BRACE" ]] && SUBTITLE+=" $FOUND_BRACE"
   [[ "${#SE}" -ge 8 ]] && SUBTITLE+="  $SE"
