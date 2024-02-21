@@ -40,8 +40,6 @@
 DATA=("$@")                                       # Übergebene Daten in ein Array
 TITLE="${DATA[0]}"                                # Titel der Sendung
 SUBTITLE="${DATA[1]}"                             # Kurztext
-#LOG_FILE="/var/log/${SELF_NAME/.*}.log"          # Log-Datei
-#MAX_LOG_SIZE=$((100*1024))                       # Log-Datei: Maximale größe in Byte
 #DEBUG='true'                                     # Debug via logger
 
 # Für Debuggingzwecke
@@ -67,33 +65,30 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   # Woke~Das Treffen S01 E08. Monate später glaubt Keef, dass er endlich an einem besseren Ort angekommen...
   re='(.*)S([0-9]+) E([0-9]+)' #(. [a-z]*)'
   if [[ "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält Sxx Exx
-    S="${BASH_REMATCH[2]}"  # 01
-    E="${BASH_REMATCH[3]}"  # 08
+    printf -v S '%02d' "${BASH_REMATCH[2]}"  # 01
+    printf -v E '%02d' "${BASH_REMATCH[3]}"  # 08
     SUBTITLE="${BASH_REMATCH[1]}"  # Das Treffen
-    SUBTITLE="${SUBTITLE%% }"      # Leerzeichen am Ende entfernen
+    SUBTITLE="${SUBTITLE%%' '}"    # Leerzeichen am Ende entfernen
   fi
 
   # EPG Beispiel 3+:
   # Superstar~Staffel 01 - Folge 03: Highlights (1) / Castingshow, Schweiz 2006
   re='Staffel ([0-9]+).*Folge ([0-9]+)(.*)'
   if [[ -z "$S" && "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält Sxx Exx
-    S="${BASH_REMATCH[1]}"  # 01
-    E="${BASH_REMATCH[2]}"  # 03
+    printf -v S '%02d' "${BASH_REMATCH[1]}"  # 01
+    printf -v E '%02d' "${BASH_REMATCH[2]}"  # 08
     SUBTITLE="${BASH_REMATCH[3]}"  # : Highlights (1) / Castingshow, Schweiz 2006
     re='^[:/ ]'
-    while [[ "$SUBTITLE" =~ $re ]] ; do  # Alle Leerzeichen, '/' oder ':' entfernen
+    while [[ "$SUBTITLE" =~ $re ]] ; do  # Alle führenden Leerzeichen, '/' oder ':' entfernen
       SUBTITLE="${SUBTITLE:1}"
     done
   fi
 
   # Wenn in der Beschreibung 'Staffel, Folge' entahlen ist, diese verwenden
-  #if [[ "${DATA[5]:0:25}" =~ 'Staffel, Folge' ]] ; then  #* Beschreibung enthält x. Staffel, Folge x:
-  #  SE="${DATA[5]%%\:*}"  # :* abschneiden (1. Staffel, Folge 3)
-  #  S="${SE%%\.*}"        # .* abschneiden (1)
-  #  E="${SE##*Folge }"    # '*Folge ' abschneiden (3)
-  #  [[ ${#S} -lt 2 ]] && S="0${S}"
-  #  [[ ${#E} -lt 2 ]] && E="0${E}"
-  #  SE="[S${S}E${E}]"
+  #re='([0-9]+).*Staffel, Folge ([0-9]+)'
+  #if [[ -z "$S" && "${DATA[5]:0:25}" =~ $re ]] ; then   #* Beschreibung enthält x. Staffel, Folge x:
+  #  printf -v S '%02d' "${BASH_REMATCH[1]}"  # 01
+  #  printf -v E '%02d' "${BASH_REMATCH[2]}"  # 08
   #fi
 
   if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017.03.07-23|00-Di
@@ -102,10 +97,8 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   fi
 
   # Erstellen von [SxxExx]
-  [[ ${#S} -lt 2 ]] && S="0${S}"
-  [[ ${#E} -lt 2 ]] && E="0${E}"
-  SE="[S${S}E${E}]"
-
+  [[ -n "$S" && "$S" != '00' ]] && SE="[S${S}E${E}]"
+  
   [[ -n "$FOUND_BRACE" ]] && SUBTITLE+=" $FOUND_BRACE"
   [[ "${#SE}" -ge 8 ]] && SUBTITLE+="  $SE"
 fi
@@ -113,10 +106,5 @@ fi
 #! -> Das Skript muss eine Zeichenkette <ohne> Zeilenumbruch zurück geben!
 #echo "=> Antwort: ${TITLE:-${DATA[0]}}~${SUBTITLE:-${DATA[1]}}" >> "$LOG_FILE"
 echo -n "${TITLE}~${SUBTITLE}"  # Ausgabe an epgSearch
-
-#if [[ -e "$LOG_FILE" ]] ; then  # Log-Datei umbenennen, wenn zu groß
-#  FILE_SIZE="$(stat -c %s "$LOG_FILE" 2>/dev/null)"
-#  [[ $FILE_SIZE -gt $MAX_LOG_SIZE ]] && mv --force "$LOG_FILE" "${LOG_FILE}.old"
-#fi
 
 exit  # Ende
