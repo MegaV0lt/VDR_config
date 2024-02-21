@@ -1,10 +1,10 @@
 # Datei wird von yavdr_funcs.sh eingelesen
 
 
-# LogLevel (0=Aus,1=Normal,2=Info,3=Debug) (0,3)
+# LogLevel (0=Aus, 1=Normal, 2=Info, 3=Debug)
 LOG_LEVEL="3"
 
-# Anzahl DVB-Karten (0,9)
+# Anzahl DVB-Karten (0..9)
 DVB_CARD_NUM="4"
 
 # Video-Dir (Symlink auf /svr/vdr/video)

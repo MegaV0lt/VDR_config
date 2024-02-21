@@ -61,6 +61,6 @@ done
 # Werte in die /etc/vdr/conf.d/vdr übertragen
 COMMENT="# Wird mit Wert aus $VDR_CONF überschrieben!"
 sed -i -e "s|LOG_LEVEL=.*|LOG_LEVEL=${LOG_LEVEL:-3}  ${COMMENT}|" \
-  -e "s|VIDEO=.*|VIDEO=${VIDEO:-/video}  ${COMMENT}|" "$VDR_CFG"
+       -e "s|VIDEO=.*|VIDEO=${VIDEO:-/video}  ${COMMENT}|" "$VDR_CFG"
 
 ### Ende

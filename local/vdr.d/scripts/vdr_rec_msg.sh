@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
-# ---
+#
 # vdr_rec_msg.sh
 # Skript dient zur Anzeige von "Aufnahme"- und "Beendet"-Meldugen
-# ---
+#
 
-# VERSION=231113
+# VERSION=240220
 
 if ! source /_config/bin/yavdr_funcs.sh &>/dev/null ; then  # Falls nicht vorhanden
   f_logger() { logger -t yaVDR "vdr_rec_msg.sh: $*" ;}      # Einfachere Version
 fi
 
-# Vorgabewert, falls nicht gesetzt
+# Vorgabewert für Video Verzeichniss, falls nicht gesetzt
 : "${VIDEO:='/video'}"
 
-REC="$2"  # Aufnahme-Pfad
+REC="$2"                # Aufnahme-Pfad
+REC_FLAG="${REC}/.rec"  # Kennzeichnung für laufende Aufnahme
+PID_WAIT=13             # Zeit, die gewartet wird, um PID-Wechsel zu erkennen (Im Log schon mal 11 Sekunden!)
 
-# "Aufnahme:" und "Beendet:"-Meldung unnötige Pfade entfernen
+# Unnötige Pfade entfernen
 : "${REC%/*}" ; TITLE="${_#*"${VIDEO}/"}"
 
-# Sofortaufnahmezeichen (@) entfernen
-while [[ "${TITLE:0:1}" == '@' ]] ; do
-  TITLE="${TITLE:1}"
-done
+# Sofortaufnahmezeichen (@) am Anfang entfernen
+TITLE="${TITLE##@}"
 
-while IFS='' read -r -d '' -n 1 char ; do
-  case "$char" in           # Zeichenweises Suchen und Ersetzen
+while IFS='' read -r -d '' -n 1 char ; do  # Zeichenweises Suchen und Ersetzen
+  case "$char" in
     '/') title+='~' ;;      # "/" durch "~"
     '~') title+='/' ;;      # "~" durch "/"
     '_') title+=' ' ;;      # "_" durch " "
@@ -49,9 +49,6 @@ for ch in $SPECIALCHARS ; do
   TITLE="${TITLE//${ch}/\\${ch}}"
   REC="${REC//${ch}/\\${ch}}"
 done
-
-REC_FLAG="${REC}/.rec"  # Kennzeichnung für laufende Aufnahme
-PID_WAIT=13             # Zeit, die gewartet wird, um PID-Wechsel zu erkennen (Im Log schon mal 11 Sekunden!)
 
 case "$1" in
   before)
@@ -88,8 +85,11 @@ case "$1" in
     ;;
 esac
 
-if [[ -n "$MESG" ]] ; then  # Meldung ausgeben
+if [[ -n "$MESG" ]] ; then    # Meldung am VDR ausgeben (OSD)
   sleep 0.25
-  f_logger -o "$MESG"       # -o für OSD-Meldung
-  #svdrpsend MESG "$MESG"   # Standalone Version
+  if [[ -n "$SELF" ]] ; then  # SELF wird in yavdr_funcs.sh gesetzt
+    f_logger -o "$MESG"       # -o für OSD-Meldung
+  else
+    svdrpsend MESG "$MESG"    # Standalone Version
+  fi
 fi

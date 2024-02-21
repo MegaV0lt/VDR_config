@@ -9,12 +9,11 @@
 
 #VERSION=240201
 
-CONFIG_DIR='/_config'                   # Hauptordner
-LOCAL_DIR="${CONFIG_DIR}/local"         # Ordner mit den zu verlinkenden Ordnern
+CONFIG_DIR='/_config'                    # Hauptordner
+LOCAL_DIR="${CONFIG_DIR}/local"          # Ordner mit den zu verlinkenden Ordnern
 declare -A LINK_DIRS
-LINK_DIRS[sbin]='/usr/local/sbin'       # sbin lag mal hier: /usr/local/sbin
-#LINK_DIRS[_div]='/usr/local/src/_div'   # _div lag mal hier: /usr/local/src/_div
-LINK_DIRS[vdr.d]='/etc/vdr.d'           # vdr.d lag mal hier: /etc/vdr.d
+LINK_DIRS[sbin]='/usr/local/sbin'        # sbin lag mal hier: /usr/local/sbin
+LINK_DIRS[vdr.d]='/etc/vdr.d'            # vdr.d lag mal hier: /etc/vdr.d
 YAVDR_VDR='/usr/local/src/yaVDR_vdr.git' # VDR Repository mit Skripten
 
 [[ "$EUID" -ne 0 ]] && { echo 'Skript benötigt root-Rechte!' ; exit 1 ;}
@@ -43,7 +42,7 @@ for dir in "${!LINK_DIRS[@]}" ; do     # sbin vdr.d
 done
 
 # Rechte setzen (Alle Dateien in den Ordner und Unterordnern)
-echo '==> Setze berechtigungen…'
+echo '==> Setze Berechtigungen…'
 chown --recursive vdr:vdr "$CONFIG_DIR"  # Eigentümer auf 'vdr' setzen
 chmod --recursive 755 "$CONFIG_DIR"      # Rechte auf 755
 
@@ -67,12 +66,12 @@ if [[ ! -L /usr/sbin/sendmail || ! -L /usr/bin/sendmail ]] ; then  # Kein Symlin
   #ln --symbolic "$SELF" /usr/sbin/sendmail
 fi
 
-# Skripte von VDR die überschreiben wurden wieder herstellen
-echo '==> Aktualisiere eigenes yaVDR GIT auf angepasste Skripte…'
+# Skripte die beim VDR Update überschreiben wurden wieder herstellen
+echo '==> Aktualisiere eigenes yaVDR GIT und prüfe auf angepasste Skripte…'
 if [[ -d "${YAVDR_VDR}/.git" ]] ; then
   cd "$YAVDR_VDR" || { echo "$YAVDR_VDR nicht gefunden!" ;}
   git pull >/dev/null  # GIT aktualisieren
-  files=('merge-commands.sh' 'vdr-recordingaction' 'vdr-shutdown')
+  files=('merge-commands.sh' 'vdr-recordingaction' 'vdr-shutdown')  # Angepasste Skripte
   for file in "${files[@]}" ; do
     src="${YAVDR_VDR}/debian/${file}"  # Quelle: Lokales git
     dest="/usr/lib/vdr/${file}"        # Ziel: /urs/lib/vdr
