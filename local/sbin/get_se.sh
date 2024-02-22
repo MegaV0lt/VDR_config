@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
-# get_SE.sh - Hilfsskript, das von epgSearch aufgerufen wird und versucht aus
-#+der Beschreibung die Werte für Staffel und Episode zu extrahieren (Sky-Kanäle)
-# Zusätzlich werden im TITLE enthaltene Klammern in den SUBTITLE verschoben:
+# get_SE.sh
+#
+# Hilfsskript, das von epgSearch aufgerufen wird und versucht aus der Beschreibung
+# die Werte für Staffel und Episode zu extrahieren (SxxExx)
+#
+# Zusätzlich werden im Titel enthaltene Klammern am Ende in den Kurztext verschoben:
 # 'Serienname (5/6)~Folgenname' -> 'Serienname~Folgenname (5/6)'
-#VERSION=240220
+#VERSION=240222
 
 #Folgende Variablen sind bereits intern definiert und können verwendet werden.
 # %title%          - Title der Sendung
@@ -33,8 +36,10 @@
 # %plugconfdir%    - VDRs Verzeichnis für Plugin-Konfigurationsdateien (z.B. /etc/vdr/plugins)
 # %epgsearchdir%   - epgsearchs Verzeichnis für Konfiguratzionsdateien (z.B. /etc/vdr/plugins/epgsearch)
 
+# Aufruf in epgsearchuservars.conf:
 #%Get_SE%=system(/usr/local/sbin/get_se.sh, %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_lng%)
 #                                            0       1          2         3         4       5         6
+
 #SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
 #SELF_NAME="${SELF##*/}"                          # skript.sh
 DATA=("$@")                                       # Übergebene Daten in ein Array
@@ -42,10 +47,9 @@ TITLE="${DATA[0]}"                                # Titel der Sendung
 SUBTITLE="${DATA[1]}"                             # Kurztext
 #DEBUG='true'                                     # Debug via logger
 
-# Für Debuggingzwecke
-#logger -t "$SELF_NAME" "Erhaltene Daten(${#DATA[@]}): ${DATA[0]:-NULL}~${DATA[1]:-NULL} S:${DATA[2]:-NULL}, E:${DATA[3]:-NULL}"
+### Start
 
-# Ersetz durch verwendung von SHORTNAME bei Serientitel (epgsearch)
+# Ersetz durch Verwendung von SHORTNAME bei Serientitel (epgsearch)
 # Zeichen ersetzen, damit Aufnahmen nicht in unterschiedlichen Ordnern landen
 #case "${DATA[0]}" in
 #  *' - '*) DATA[0]="${DATA[0]//' - '/' – '}" ;;  # Kurzen durch langen Bindestrich (La_Zona_–_Do_not_cross)
@@ -76,7 +80,7 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   re='Staffel ([0-9]+).*Folge ([0-9]+)(.*)'
   if [[ -z "$S" && "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält Sxx Exx
     printf -v S '%02d' "${BASH_REMATCH[1]}"  # 01
-    printf -v E '%02d' "${BASH_REMATCH[2]}"  # 08
+    printf -v E '%02d' "${BASH_REMATCH[2]}"  # 03
     SUBTITLE="${BASH_REMATCH[3]}"  # : Highlights (1) / Castingshow, Schweiz 2006
     re='^[:/ ]'
     while [[ "$SUBTITLE" =~ $re ]] ; do  # Alle führenden Leerzeichen, '/' oder ':' entfernen
@@ -92,13 +96,12 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   #fi
 
   if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017.03.07-23|00-Di
-    # SUBTITLE="${DATA[6]}_${DATA[7]}_${DATA[8]}"  # Sendezeit, falls Leer
-    printf -v SUBTITLE '%(%Y.%m.%d-%H|%M-%a)T' "${DATA[6]}"
+    printf -v SUBTITLE '%(%Y.%m.%d-%H|%M-%a)T' "${DATA[6]}"  # Sendezeit, falls Leer
   fi
 
   # Erstellen von [SxxExx]
   [[ -n "$S" && "$S" != '00' ]] && SE="[S${S}E${E}]"
-  
+
   [[ -n "$FOUND_BRACE" ]] && SUBTITLE+=" $FOUND_BRACE"
   [[ "${#SE}" -ge 8 ]] && SUBTITLE+="  $SE"
 fi
