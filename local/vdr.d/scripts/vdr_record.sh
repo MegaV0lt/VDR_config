@@ -6,7 +6,7 @@
 # oder wenn eine Aufnahme gelöscht wird. Aufgerufene Skripte müssen im Hintergrund laufen!
 # Beispiel: 'skript.sh &>/dev/null & disown' oder mit 'screen', '| at now'
 
-# VERSION=240207
+# VERSION=240222
 
 source /_config/bin/yavdr_funcs.sh
 
@@ -41,14 +41,6 @@ case "$1" in
         break
       fi
     done
-
-    #INFO="$2/info"
-    #[[ ! -e "$INFO" ]] && INFO="$2/info.vdr"
-    #EVENTID="$(grep "^E " "$INFO" | cut -f 2 -d " ")"
-    #if [[ -n "$EVENTID" ]] ; then
-    #  [[ -e "${EPG_IMAGES}/${EVENTID}.jpg" ]] && cp "${EPG_IMAGES}/${EVENTID}"*.jpg "$2" && ln -s "${EVENTID}.jpg" "$2/Cover-Enigma.jpg"
-    #  [[ -e "${EPG_IMAGES}/${EVENTID}.png" ]] && cp "${EPG_IMAGES}/${EVENTID}"*.png "$2" && ln -s "${EVENTID}.png" "$2/Cover-Enigma.png"
-    #fi
     ;;
   editing)  # Vor dem editieren einer Aufnahme
     # echo "Editing recording $2"
@@ -58,18 +50,12 @@ case "$1" in
     # echo "Edited recording $2"
     # echo "Source recording $3"
     # Dateien von TVScraper und epg2vdr zur editierten Aufnahme kopieren
-    files=(banner.jpg fanart.jpg poster.jpg tvscrapper.json)  # TVScraper
-    files+=(cover_vdr.jpg)                                    # Verlinktes Bild vom TVScraper (Siehe oben)
-    files+=(info.epg2vdr)                                     # epg2vdr
+    files=(banner.jpg fanart.jpg poster.jpg tvscraper.json tvscrapper.json)  # TVScraper
+    files+=(cover_vdr.jpg)  # Verlinktes Bild vom TVScraper (Siehe oben)
+    files+=(info.epg2vdr)   # epg2vdr
     for file in "${files[@]}" ; do
       [[ -e "${3}/${file}" ]] && cp --archive --update "${3}/${file}" "${2}"
     done
-
-    #if [[ -n "$3" ]] ; then         # VDR > 1.7.31
-    #   [[ -e "${3}/Cover-Enigma.jpg" ]] && cp -a "${3}"/*.jpg "$2"
-    #   [[ -e "${3}/Cover-Enigma.png" ]] && cp -a "${3}"/*.png "$2"
-    #fi
-    #[[ -z "${PLUGINS/* rectags */}" ]] && sendvdrkey.sh RED
     ;;
   deleted)  # Nach dem löschen einer Aufnahme
     # echo "Deleted recording $2"
