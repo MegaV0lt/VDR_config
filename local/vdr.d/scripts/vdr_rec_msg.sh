@@ -4,11 +4,9 @@
 # Skript dient zur Anzeige von "Aufnahme"- und "Beendet"-Meldugen
 #
 
-# VERSION=240220
+# VERSION=240322
 
-if ! source /_config/bin/yavdr_funcs.sh &>/dev/null ; then  # Falls nicht vorhanden
-  f_logger() { logger -t yaVDR "vdr_rec_msg.sh: $*" ;}      # Einfachere Version
-fi
+source /_config/bin/yavdr_funcs.sh &>/dev/null
 
 # Vorgabewert für Video Verzeichniss, falls nicht gesetzt
 : "${VIDEO:='/video'}"
@@ -16,6 +14,10 @@ fi
 REC="$2"                # Aufnahme-Pfad
 REC_FLAG="${REC}/.rec"  # Kennzeichnung für laufende Aufnahme
 PID_WAIT=13             # Zeit, die gewartet wird, um PID-Wechsel zu erkennen (Im Log schon mal 11 Sekunden!)
+
+if ! declare -F f_logger >/dev/null ; then
+  f_logger() { logger -t yaVDR "vdr_rec_msg.sh: $*" ;}  # Einfachere Version
+fi
 
 # Unnötige Pfade entfernen
 : "${REC%/*}" ; TITLE="${_#*"${VIDEO}/"}"

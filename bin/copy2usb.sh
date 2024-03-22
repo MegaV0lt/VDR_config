@@ -4,11 +4,9 @@
 # Wird aufgerufen, wenn man im VDR Aufnahmen auf USB kopiert (rec_commands)
 # ---
 
-# VERSION=240216
+# VERSION=240322
 
-if ! source /_config/bin/yavdr_funcs.sh &>/dev/null ; then  # Falls nicht vorhanden
-  f_logger() { logger -t yaVDR "copy2usb.sh: $*" ;}         # Einfachere Version
-fi
+source /_config/bin/yavdr_funcs.sh &>/dev/null
 
 LIMIT=$((25*1024))            # Begrenzung beim Kopieren via USB (kb/s)
 : "${VIDEO:=/video}"          # Vorgabe, falls $VIDEO leer ist
@@ -19,6 +17,11 @@ SRC="$1"
 # Start
 # Video- und Aufnahme-Verzeichnis abschneiden
 : "${SRC%/*}" ; TITLE="${_#*"${VIDEO}/"}"
+
+if ! declare -F f_logger >/dev/null ; then
+  f_logger() { logger -t yaVDR "copy2usb.sh: $*" ;}
+  f_svdrpsend() { svdrpsend "$@" ;}
+fi
 
 : "${TITLE//_/ }"      # Alle _ durch Leerzeichen ersetzen
 : "${_//'/'/' / '}"    # / durch " / " ersetzen
@@ -62,6 +65,10 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
   f_logger "Copying $1 to $TARGET"
   { echo '#!/usr/bin/env bash'
      echo 'source /_config/bin/yavdr_funcs.sh &>/dev/null'
+     echo 'if ! declare -F f_logger >/dev/null ; then'
+     echo "  f_logger() { logger -t yaVDR \"$CP2USB: $*\" ;}"
+     echo '  f_svdrpsend() { svdrpsend "$@" ;}'
+     echo 'fi'
      echo "if ! mkdir --parents \"${TARGET}${TD}\" ; then"
      echo "  f_svdrpsend MESG \"@FEHLER beim erstellen von '[${TARGET_DISK}]${VIDEO}/${TITLE}'\""
      echo 'fi'

@@ -6,9 +6,13 @@
 # oder wenn eine Aufnahme gelöscht wird. Aufgerufene Skripte müssen im Hintergrund laufen!
 # Beispiel: 'skript.sh &>/dev/null & disown' oder mit 'screen', '| at now'
 
-# VERSION=240222
+# VERSION=240322
 
-source /_config/bin/yavdr_funcs.sh
+source /_config/bin/yavdr_funcs.sh >/dev/null
+
+if ! declare -F f_logger >/dev/null ; then
+  f_logger() { logger -t yaVDR "vdr_record.sh: $*" ;}
+fi
 
 VDR_SCRIPT_DIR='/etc/vdr.d/scripts'  # Verzeichnis der Skripte
 

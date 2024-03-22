@@ -14,11 +14,9 @@
 # Aufruf bei 'startet' und 'after':
 #   /etc/vdr.d/scripts/vdr_checkrec.sh "$1" "$2" &>/dev/null & disown
 
-# VERSION=240216
+# VERSION=240322
 
-if ! source /_config/bin/yavdr_funcs.sh &>/dev/null ; then  # Falls nicht vorhanden
-  f_logger() { logger -t yaVDR "vdr_checkrec.sh: $*" ;}     # Einfachere Version
-fi
+source /_config/bin/yavdr_funcs.sh &>/dev/null
 
 # Einstellungen
 ADD_SE='true'                         # (SxxExx) anhängen, wenn in der Beschreibung gefunden
@@ -42,6 +40,10 @@ REC_INFOS="${REC_DIR}/.checkrec"      # Um die ermittelten Werte zu speichern
 REC_LEN="${REC_DIR}/.rec_length"      # Angabe der Aufnahmelänge in %
 
 # Funktionen
+if ! declare -F f_logger >/dev/null ; then
+  f_logger() { logger -t yaVDR "vdr_checkrec.sh: $*" ;}  # Einfachere Version
+fi
+
 f_log() {  # Logmeldungen ins Systemlog (logger) und Log-Datei
   f_logger "$@"
   [[ -w "$LOG_FILE" ]] && printf '[%(%F %R)T] %s\n' -1 "$@" >> "$LOG_FILE"
