@@ -95,8 +95,8 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   #  printf -v E '%02d' "${BASH_REMATCH[2]}"  # 08
   #fi
 
-  if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017.03.07-23|00-Di
-    printf -v SUBTITLE '%(%Y.%m.%d-%H|%M-%a)T' "${DATA[6]}"  # Sendezeit, falls Leer
+  if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017-03-07_13|00-Di.
+    printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # Sendezeit, falls Leer
   fi
 
   # Erstellen von [SxxExx]
