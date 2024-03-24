@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # vdsb.sh - Video Data Stram Broken
-VERSION=230801
+VERSION=240324
 
 # Wenn Syslog-NG oder rsyslog verwendet wird, startet Syslog-NG das Skript und schickt die
 # Meldung via stdin an das Skript. Dazu wird eine "while" schleife verwendet.
@@ -27,39 +27,13 @@ f_cleanup() {  # Aufräumen
   rm --force --recursive "${TMP_DIR:?TMP_DIR not set}"/*
 }
 
-f_collect_dvbapidata() {
-  cp "${LOG_DIR}/messages" "$TMP_DIR"
-  cp "$LOCALOSCAM_LOG" "$TMP_DIR"
-  cp "${LOCALOSCAM_LOG}-prev" "$TMP_DIR"
-  cp "${OSCAM_LOG_DIR}/ncam.log" "${TMP_DIR}/ncam-server.log"
-  cp "${OSCAM_LOG_DIR}/ncam.log-prev" "${TMP_DIR}/ncam-server.log-prev"
-  sleep 0.25
-  # Packen
-  ARCHIV="${ARCHIV/VDSB/DVBAPI_UK}"
-  tar --create --auto-compress --file="${LOG_DIR}/${ARCHIV}" "$TMP_DIR"
-  # OSCam (lokal) neustart - Abhilfe?
-  # /etc/init.d/oscam restart # Deaktiviert weil OSCam auf dem Server läuft
-  # Mail senden
-  if [[ "$1" != 'NO_MAIL' ]] ; then
-    { echo "From: \"${HOSTNAME}\"<${MAIL_ADRESS}>"
-      echo "To: $MAIL_ADRESS"
-      echo "Subject: DVBAPI Unknown Command - $HOSTNAME"
-      echo -e "\nEs wurde ein 'DVBAPI-Error: Action: read failed unknown command:' entdeckt!\n"
-    } > "$MAILFILE"
-    echo "Ein Archiv mit Logs wurde erzeugt: $ARCHIV"
-    /usr/sbin/sendmail root < "$MAILFILE"
-  fi
-}
-
 f_find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
   # svdrpsend LSTT 147
   # 220 hdvdr01 SVDRP VideoDiskRecorder 2.2.0; Fri Nov 13 11:21:06 2015; UTF-8
   # 250 147 1:92:2015-12-02:2005:2110:50:99:Mako - Einfach Meerjungfrau~Verirrte Mondseekräfte / Katzenjammer:<epgsearch><channel>92 - KiKA HD</channel><searchtimer>Mako - Einfach Meerjungfrau</searchtimer><start>1449083100</start><stop>1449087000</stop><s-id>358</s-id><eventid>42931</eventid></epgsearch>
   # 221 hdvdr01 closing connection
-  # Laufende Timer (LSTT) [Jede Zeile ein Feld]
-  mapfile -t TIMERS < <("$SVDRPSEND" LSTT | grep ' 9:')
-  # Laufende Aufnahmen (.rec) in Array
-  mapfile -t REC_FLAGS < <(find -L /video -name .rec -type f -print)
+  mapfile -t TIMERS < <("$SVDRPSEND" LSTT | grep ' 9:')  # Laufende Timer (LSTT) [Jede Zeile ein Feld]
+  mapfile -t REC_FLAGS < <(find -L /video -name .rec -type f -print)  # Laufende Aufnahmen (.rec) in Array
 
   for rec_flag in "${REC_FLAGS[@]}" ; do
     REC_NAME="$(< "$rec_flag")"        # Der Name wie im Timer (Hoffentlich)
@@ -109,8 +83,6 @@ f_rotate_log  # Log rotieren
 
 # Lösche VDSB_*- und DVBAPI_UK_*-Dateien die älter als 14 Tage sind
 find "$LOG_DIR" -maxdepth 1 \( -name "VDSB_*" -o -name "DVBAPI_UK_*" \) -type f -mtime +14 -delete
-# Lösche .rec-Dateien die älter als 2 Tage sind
-find /video -name '.rec' -type f -mtime +2 -delete
 
 logdaemon='rsyslogd'  # syslog-ng bei Gen2VDR
 if pidof "$logdaemon" >/dev/null ; then  # rsyslog läuft (yaVDR)
@@ -186,8 +158,8 @@ if pidof "$logdaemon" >/dev/null ; then  # rsyslog läuft (yaVDR)
     if [[ $LOGNUM -eq 1 ]] ; then
       /_config/bin/yavdr_log.sh -v "${TMP_DIR}/logset" &>/dev/null & disown
       until [[ -e "${TMP_DIR}/logset.tar.xz" ]] ; do  # Warte auf Datei
-        sleep 0.5 ; ((cnt+=1))
-        [[ $cnt -gt 120 ]] && break  # max. 60 Sekunden
+        sleep 1 ; ((cnt+=1))
+        [[ $cnt -gt 60 ]] && break  # max. 60 Sekunden
       done
     fi
 
