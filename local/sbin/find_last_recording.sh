@@ -12,7 +12,6 @@ SELF_NAME="${SELF##*/}"                          # skript.sh
 msgERR='\e[1;41m FEHLER! \e[0;1m'  # Anzeige "FEHLER!"
 msgINF='\e[42m \e[0m' ; msgWRN='\e[103m \e[0m'  # " " mit grünem/gelben Hintergrund
 declare -A SEARCHTIMER   # Array
-rec=0                    # Zähler für die Aufnahemn
 printf -v NOW '%(%s)T'   # Zeit in Sekunden (Jetzt)
 ISOLD=$((60*60*24*356*2))  # Ab wann eine Suchtimer als "Alt" bertrachtet wird
 LC_ALL=C  # Schneller?
@@ -37,17 +36,17 @@ mapfile -t < "$EPGSEARCH_DONE"
 for REPLY in "${MAPFILE[@]}" ; do
   #echo "REPLY: $REPLY"
   case "${REPLY:0:1}" in
-    R) ((rec+=1)) ;;
-    T) TITLE[rec]="${REPLY:2}" ;;
-    S) SHORT[rec]="${REPLY:2}" ;;
-    @) #AUX[rec]="${REPLY:2}"
+    'R') ((rec+=1)) ;;  # Zähler für die Aufnahemn
+    'T') TITLE[rec]="${REPLY:2}" ;;
+    'S') SHORT[rec]="${REPLY:2}" ;;
+    '@') #AUX[rec]="${REPLY:2}"
       AUX_TIMER[rec]="${REPLY#*\<searchtimer\>}" ; AUX_TIMER[rec]="${AUX_TIMER[rec]%%\</searchtimer\>*}"
       i=0
       while [[ $i -lt ${#AUX_TIMER[rec]} ]] ; do  # Zeichen nach HEX wandeln
-        HEX_TIMER[rec]+=$(printf '%X' "'${AUX_TIMER[rec]:i:1}")
+        HEX_TIMER[rec]+=$(printf '%X' "${AUX_TIMER[rec]:i:1}")
         ((i++))
       done
-      #echo -e "AUX_TIMER: ${AUX_TIMER[rec]}\nHEX_TIMER: ${HEX_TIMER[rec]}"
+      # echo -e "AUX_TIMER: ${AUX_TIMER[rec]}\nHEX_TIMER: ${HEX_TIMER[rec]}"
 
       #AUX_TIMER[rec]="_${AUX_TIMER[rec]//[^[:ascii:]]/_}"  # Nicht-ASCII Zeichen ersetzen
       #while [[ $i -le $LEN ]] ; do  # Zeichen ersetzen, die nicht in Variablennamen gehören
@@ -69,22 +68,22 @@ for REPLY in "${MAPFILE[@]}" ; do
       #[[ "${AUX_TIMER[rec]: -1}" == '-' ]] && AUX_TIMER[rec]="${AUX_TIMER[rec]:0:-1}"
       #AUX_TIMER[rec]="${AUX_TIMER[rec]// /_}"  # Leerzeichen ersetzen
       AUX_START[rec]="${REPLY#*\<start\>}" ; AUX_START[rec]="${AUX_START[rec]%%\</start\>*}"
-      #if [[ -z ${SEARCHTIMER[${HEX_TIMER[rec]}]} || "${AUX_START[rec]}" -gt ${SEARCHTIMER[${HEX_TIMER[rec]}]} ]] ; then
+      # if [[ -z ${SEARCHTIMER[${HEX_TIMER[rec]}]} || "${AUX_START[rec]}" -gt ${SEARCHTIMER[${HEX_TIMER[rec]}]} ]] ; then
       if [[ ${AUX_START[rec]} -gt ${SEARCHTIMER[${HEX_TIMER[rec]}]} ]] ; then
-        #echo "Einrag für ${AUX_TIMER[rec]} ist neuer!"
+        # echo "Einrag für ${AUX_TIMER[rec]} ist neuer!"
         SEARCHTIMER[${HEX_TIMER[rec]}]="${AUX_START[rec]}"
-        #echo "${SEARCHTIMER[${AUX_TIMER[rec]}]}"
-        #echo "${#SEARCHTIMER[@]}"
+        # echo "${SEARCHTIMER[${AUX_TIMER[rec]}]}"
+        # echo "${#SEARCHTIMER[@]}"
       fi
     ;;
   esac
-  #[[ $rec -gt 200 ]] && break  # Max. Einträge (Test)
+  # [[ $rec -gt 200 ]] && break  # Max. Einträge (Test)
 done
 
-echo "Datensätze eingelesen: $rec"
-echo "Suchtimer: ${#SEARCHTIMER[@]}"
+echo "$msgINF Datensätze eingelesen: $rec"
+echo "$msgINF Suchtimer: ${#SEARCHTIMER[@]}"
 # Suchtimer - Datum ausgeben
-echo 'Suchtimer, die schon lange nicht mehr aufgenommen haben:'
+echo "$msgINF Suchtimer, die schon lange nicht mehr aufgenommen haben:"
 OLDTIME=$((NOW - ISOLD))
 for stimer in "${!SEARCHTIMER[@]}" ; do
   if [[ "${SEARCHTIMER[$stimer]}" -lt $OLDTIME ]] ; then

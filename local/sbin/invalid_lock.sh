@@ -5,12 +5,19 @@
 #VERSION=240217
 
 LOG_DIR='/var/log'                               # System-Logdir
-#SELF="$(readlink /proc/$$/fd/255)" || SELF="$0" # Eigener Pfad (besseres $0)
-#SELF_NAME="${SELF##*/}"
+SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
+SELF_NAME="${SELF##*/}"
 LOG_FILE="${LOG_DIR}/syslog"                     # Logdatei
 TMP_LOG='/tmp/~invalid_lock.txt'                 # Temporäres Log
 #MAILFILE="/tmp/~${SELF_NAME%.*}_mail.txt"
 printf -v DT '%(%F)T' -1                         # 2020-09-09
+
+# Funktionen
+f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
+  # [[ -t 1 ]] && echo "$*"                        # Konsole
+  logger -t "${SELF_NAME%.*}" "$*"               # Syslog
+  # [[ -w "$LOG_FILE" ]] && echo "$*" 2>/dev/null >> "$LOG_FILE"  # Log in Datei
+}
 
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses
 [[ -z "$MAIL_ADRESS" ]] && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}

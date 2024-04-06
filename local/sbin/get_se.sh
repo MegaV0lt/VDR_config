@@ -59,8 +59,8 @@ SUBTITLE="${DATA[1]}"                             # Kurztext
 
 # Titel mit (*) am Ende?
 re='\(.*\)$'
-if [[ "$TITLE" =~ $re ]] ; then  #* Titel enthält Klammern am Ende!
-  FOUND_BRACE="${BASH_REMATCH[0]}"   # Wert speichern '(5/6)'
+if [[ "$TITLE" =~ $re ]] ; then     #* Titel enthält Klammern am Ende!
+  FOUND_BRACE="${BASH_REMATCH[0]}"  # Wert speichern '(5/6)'
   : "${TITLE%"${FOUND_BRACE}"}" ; TITLE="${_%%' '}"  # Klammern (und Leerzeichen) entfernen
 fi
 
@@ -90,7 +90,7 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
 
   # Wenn in der Beschreibung 'Staffel, Folge' entahlen ist, diese verwenden
   #re='([0-9]+).*Staffel, Folge ([0-9]+)'
-  #if [[ -z "$S" && "${DATA[5]:0:25}" =~ $re ]] ; then   #* Beschreibung enthält x. Staffel, Folge x:
+  #if [[ -z "$S" && "${DATA[5]:0:25}" =~ $re ]] ; then  #* Beschreibung enthält x. Staffel, Folge x:
   #  printf -v S '%02d' "${BASH_REMATCH[1]}"  # 01
   #  printf -v E '%02d' "${BASH_REMATCH[2]}"  # 08
   #fi
@@ -107,7 +107,7 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
 fi
 
 #! -> Das Skript muss eine Zeichenkette <ohne> Zeilenumbruch zurück geben!
-#echo "=> Antwort: ${TITLE:-${DATA[0]}}~${SUBTITLE:-${DATA[1]}}" >> "$LOG_FILE"
+# echo "=> Antwort: ${TITLE}~${SUBTITLE}" >> "$LOG_FILE"
 echo -n "${TITLE}~${SUBTITLE}"  # Ausgabe an epgSearch
 
 exit  # Ende
