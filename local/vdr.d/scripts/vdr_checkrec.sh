@@ -21,7 +21,7 @@ source /_config/bin/yavdr_funcs.sh &>/dev/null
 # Einstellungen
 ADD_SE='true'                         # (SxxExx) anhängen, wenn in der Beschreibung gefunden
 ADD_UNCOMPLETE='true'                 # [67,5%] anhängen, wenn aufnahme weniger als 99% lang
-MAX_LOG_SIZE=$((1024 * 50))           # Maximale Größe der Logdatei
+#MAX_LOG_SIZE=$((1024 * 50))           # Maximale Größe der Logdatei
 
 # Vorgaben, falls nicht gesetzt
 : "${VIDEO:=/video}"

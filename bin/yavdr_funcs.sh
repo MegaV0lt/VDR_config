@@ -51,6 +51,7 @@ f_rotate_log() {  # Log rotieren wenn zu groß
   if [[ -n "$file" && -w "$file" ]] ; then  # Datei Existiert und hat Schreibrechte
     file_size="$(stat -c %s "$file" 2>/dev/null)"
     [[ ${file_size:-51201} -gt ${MAX_LOG_SIZE:-51200} ]] && mv --force "$file" "${file}.old"
+    : > "$file"
   fi
 }
 
