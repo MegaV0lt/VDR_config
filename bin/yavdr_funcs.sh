@@ -27,7 +27,7 @@ f_logger() {
       -o|--osd)
         parm='--stderr' ; shift
         #/usr/bin/vdr-dbus-send /Skin skin.QueueMessage string:"$*" ;;
-        f_svdrpsend MESG "$*" ;;
+        f_scvdrpsend_msgt "$*" ;;
     esac
     logger "$parm" --tag 'yaVDR' "[$$] ${SELF_NAME}: $*"
   fi
@@ -59,18 +59,14 @@ f_rotate_log() {  # Log rotieren wenn zu groß
 #  return 1
 #}
 
-f_svdrpsend() {
-  if [[ "${1^^}" == 'MESG' ]] ; then
-    mapfile -t < <("$SVDRPSEND" MSGT "${@:2}")  # Prüfen ob VDR den Befehl kennt
-    # 220 vdr01 SVDRP VideoDiskRecorder 2.6.1; Thu Oct 27 15:30:24 2022; UTF-8
-    # 500 Command unrecognized: "MSGT"
-    # 221 vdr01 closing connection
-    if [[ "${MAPFILE[1]}" == "500"* ]] ; then  # MSGT nicht vorhanden
-      : "${2#@}" ; : "${_#%}"                  # '%' oder '@' entfernen
-      "$SVDRPSEND" MESG "$_" "${@:3}"
-    fi
-  else
-    "$SVDRPSEND" "$@"  # Für alles andere durchreichen
+f_svdrpsend_msgt() {
+  mapfile -t < <("$SVDRPSEND" MSGT "${@:2}")  # Prüfen ob VDR den Befehl kennt
+  # 220 vdr01 SVDRP VideoDiskRecorder 2.6.1; Thu Oct 27 15:30:24 2022; UTF-8
+  # 500 Command unrecognized: "MSGT"
+  # 221 vdr01 closing connection
+  if [[ "${MAPFILE[1]}" == "500"* ]] ; then  # MSGT nicht vorhanden
+    : "${2#@}" ; : "${_#%}"                  # '%' oder '@' entfernen
+    "$SVDRPSEND" MESG "$_" "${@:3}"
   fi
 }
 

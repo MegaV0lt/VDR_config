@@ -62,7 +62,7 @@ if [ "${1^^}" == "TEST" ] ; then
 fi
 
 # Meldung am VDR
-#f_svdrpsend MESG "$MESG"
+#f_scvdrpsend_msgt "$MESG"
 #[ $LOGNUM -gt 3 ] && cleanup    # Ende
 
 # Laufende Aufzeichnungen und Timer
