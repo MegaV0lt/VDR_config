@@ -20,7 +20,7 @@ SRC="$1"
 
 if ! declare -F f_logger >/dev/null ; then
   f_logger() { logger -t yaVDR "copy2usb.sh: $*" ;}
-  f_svdrpsend() { svdrpsend "$@" ;}
+  f_svdrpsend_msgt() { svdrpsend "$@" ;}
 fi
 
 : "${TITLE//_/ }"      # Alle _ durch Leerzeichen ersetzen
@@ -83,16 +83,16 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
      echo 'source /_config/bin/yavdr_funcs.sh &>/dev/null'
      echo 'if ! declare -F f_logger >/dev/null ; then'
      echo "  f_logger() { logger -t yaVDR \"$CP2USB: $*\" ;}"
-     echo '  f_svdrpsend() { svdrpsend "$@" ;}'
+     echo '  f_svdrpsend_msgt() { svdrpsend "$@" ;}'
      echo 'fi'
      echo "if ! mkdir --parents \"${TARGET}${TD}\" ; then"
      echo "  f_scvdrpsend_msgt \"@FEHLER beim erstellen von '[${TARGET_DISK}]${VIDEO}/${TITLE}'\""
      echo 'fi'
-     echo "f_scvdrpsend_msgt \"Kopiere '${TITLE}' nach [${TARGET_DISK}]${VIDEO}\""
+     echo "f_svdrpsend_msgt \"Kopiere '${TITLE}' nach [${TARGET_DISK}]${VIDEO}\""
      echo "if rsync --archive --bwlimit=${LIMIT} --no-links \"${SRC}\" \"${TARGET}${TD}\" &> \"${CP2USB%.*}.rsync.log\" ; then"
-     echo "  f_scvdrpsend_msgt \"'${TITLE}' wurde nach [${TARGET_DISK}]${VIDEO} kopiert\""
+     echo "  f_svdrpsend_msgt \"'${TITLE}' wurde nach [${TARGET_DISK}]${VIDEO} kopiert\""
      echo 'else'
-     echo "  f_scvdrpsend_msgt \"@FEHLER beim kopieren von '${TITLE}'\""
+     echo "  f_svdrpsend_msgt \"@FEHLER beim kopieren von '${TITLE}'\""
      echo '  exit 1'
      echo 'fi'
      echo "rm \"${1}/${FLAG}\""   # Kopier-Flag löschen
