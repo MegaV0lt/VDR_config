@@ -131,20 +131,20 @@ case "$1" in
 
     f_get_se  # VDR info Datei einlesen und Werte für Episode und Staffel ermitteln
 
-    [[ -z "$FRAMERATE" ]] && { f_log "${REC_DIR}: Error! FRAMERATE not detected!" ; unset -v 'ADD_UNCOMPLETE' ;}
+    [[ -z "$FRAMERATE" ]] && { f_log "${REC_DIR}: Error! FRAMERATE not detected!" ;}  # unset -v 'ADD_UNCOMPLETE'
 
     # Größe der index Datei ermitteln und mit Timerlänge vergleichen
     if [[ "$ADD_UNCOMPLETE" == 'true' ]] ; then
-      INDEX_SIZE=$(stat -c %s "$REC_INDEX" 2>/dev/null)     # In Byte
-      if [[ "${INDEX_SIZE:=0}" == 0 ]] ; then
-        f_log 'Error: INDEX_SIZE not detected!'             # Dateigröße in Bytes
+      INDEX_SIZE=$(stat -c %s "$REC_INDEX" 2>/dev/null)       # In Byte
+      if [[ "${INDEX_SIZE:=0}" == 0 || -z "$FRAMERATE" ]] ; then
+        f_log 'Error: INDEX_SIZE or FRAMERATE not detected!'  # Dateigröße in Bytes
       else
-        REC_LENGTH=$((INDEX_SIZE / 8 / FRAMERATE))          # Aufnahmelänge in Sekunden
+        REC_LENGTH=$((INDEX_SIZE / 8 / FRAMERATE))            # Aufnahmelänge in Sekunden
       fi
       if [[ "${REC_LENGTH:=0}" == 0 ]] ; then
-        f_log 'Error: REC_LENGTH not detected!'             # Länge in Sekunden
+        f_log 'Error: REC_LENGTH not detected!'               # Länge in Sekunden
       else
-        RECORDED=$((REC_LENGTH * 100 * 10 / TIMER_LENGTH))  # In Promille (675 = 67,5%)
+        RECORDED=$((REC_LENGTH * 100 * 10 / TIMER_LENGTH))    # In Promille (675 = 67,5%)
       fi
       if [[ -z "$RECORDED" ]] ; then
         unset -v 'ADD_UNCOMPLETE'
@@ -192,7 +192,7 @@ case "$1" in
     fi
 
     # 0%-Aufnahme (Senderausfall, Gewitter oder ähnliches)
-    if [[ ! -e "$REC_INDEX" || -z "$RECORDED" ]] ; then
+    if [[ ! -e "$REC_INDEX" || -z "$RECORDED" || "$RECORDED" == 0 ]] ; then
       NEW_REC_NAME="${NEW_REC_NAME:-$REC_NAME}__[0%]"  # 0% Aufnahme
       f_log "Adding [0%] to $REC_NAME -> $NEW_REC_NAME"
       RECORDED=0
