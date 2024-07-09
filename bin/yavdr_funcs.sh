@@ -36,22 +36,28 @@ f_logger() {
 f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
   [[ -t 1 ]] && echo "$*"      # Konsole
   logger -t "$SELF_NAME" "$*"  # Syslog
-  [[ -n "$LOG_FILE" && -w "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
+  if [[ -n "$LOG_FILE" ]] ; then
+    [[ ! -e "$LOG_FILE" ]] && : >> "$LOG_FILE"        # Datei erstellen
+    [[ -w "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
+  fi
 }
 
 f_log2() {
   local data=("${@:-$(</dev/stdin)}")               # Akzeptiert Parameter und via stdin (|)
   [[ -t 1 ]] && printf '%s\n' "${data[@]}"          # Konsole falls verbunden
   logger -t "$SELF_NAME" "${data[@]}"               # Systemlog
-  [[ -n "$LOG_FILE" && -w "$LOG_FILE" ]] && printf '%s\n' "${data[@]}" >> "$LOG_FILE"  # Log-Datei
+  if [[ -n "$LOG_FILE" ]] ; then
+    [[ ! -e "$LOG_FILE" ]] && : >> "$LOG_FILE"        # Datei erstellen
+    [[ -w "$LOG_FILE" ]] && printf '%s\n' "${data[@]}" >> "$LOG_FILE"  # Log-Datei
+  fi
 }
 
 f_rotate_log() {  # Log rotieren wenn zu groß
   local file="${LOG_FILE:-$1}" file_size
   if [[ -n "$file" && -w "$file" ]] ; then  # Datei Existiert und hat Schreibrechte
     file_size="$(stat -c %s "$file" 2>/dev/null)"
-    [[ ${file_size:-51201} -gt ${MAX_LOG_SIZE:-51200} ]] && mv --force "$file" "${file}.old"
-    : > "$file"
+    [[ ${file_size:-51200} -ge ${MAX_LOG_SIZE:-51200} ]] && mv --force "$file" "${file}.old"
+    : >> "$file"
   fi
 }
 
