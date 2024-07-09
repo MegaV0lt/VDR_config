@@ -86,7 +86,7 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
      echo '  f_svdrpsend_msgt() { svdrpsend "$@" ;}'
      echo 'fi'
      echo "if ! mkdir --parents \"${TARGET}${TD}\" ; then"
-     echo "  f_scvdrpsend_msgt \"@FEHLER beim erstellen von '[${TARGET_DISK}]${VIDEO}/${TITLE}'\""
+     echo "  f_svdrpsend_msgt \"@FEHLER beim erstellen von '[${TARGET_DISK}]${VIDEO}/${TITLE}'\""
      echo 'fi'
      echo "f_svdrpsend_msgt \"Kopiere '${TITLE}' nach [${TARGET_DISK}]${VIDEO}\""
      echo "if rsync --archive --bwlimit=${LIMIT} --no-links \"${SRC}\" \"${TARGET}${TD}\" &> \"${CP2USB%.*}.rsync.log\" ; then"
@@ -103,5 +103,5 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
 
 else
   f_logger -s "Illegal parameter <${1}> or no usb drive found!"
-  f_scvdrpsend_msgt "@Ungültiger Parameter <${1}> oder kein USB-Laufwerk gefunden!"
+  f_svdrpsend_msgt "@Ungültiger Parameter <${1}> oder kein USB-Laufwerk gefunden!"
 fi

@@ -108,7 +108,7 @@ if [[ "$(pidof syslog-ng)" ]] ; then  # Syslog-NG läuft
     MESG="%>> 'DVBAPI Read Unknown Command' entdeckt! (${LOGNUM}) <<"
 
     # Meldung am VDR
-    f_scvdrpsend_msgt "$MESG"
+    f_svdrpsend_msgt "$MESG"
     [[ $LOGNUM -gt 3 ]] && continue  # Weiter
 
     # Beim 2. mal VDR neu starten und Flag setzen
