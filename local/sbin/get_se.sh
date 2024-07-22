@@ -100,7 +100,7 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   fi
 
   # Erstellen von [SxxExx]
-  [[ -n "$S" && "$S" != '00' ]] && SE="[S${S}E${E}]"
+  [[ -n "$S" ]] && SE="[S${S}E${E}]"
 
   [[ -n "$FOUND_BRACE" ]] && SUBTITLE+=" $FOUND_BRACE"
   [[ "${#SE}" -ge 8 ]] && SUBTITLE+="  $SE"
