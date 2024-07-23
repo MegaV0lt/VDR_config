@@ -14,6 +14,8 @@ INFO_FILE="${HOSTNAME^^}_Systeminfo.txt"
   lspci -v
   echo -e '\n\n=== vdr --version ==='
   vdr --version
+  echo -e '\n\n=== vdr --showargs ==='
+  vdr --showargs
 } > "${MOUNT_POINT}/${FILE_PATH}/${INFO_FILE}" 2> "${MOUNT_POINT}/${FILE_PATH}/${INFO_FILE%.*}.err.txt"
 
 # Ende
