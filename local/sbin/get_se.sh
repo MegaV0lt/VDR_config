@@ -7,9 +7,9 @@
 #
 # Zusätzlich werden im Titel enthaltene Klammern am Ende in den Kurztext verschoben:
 # 'Serienname (5/6)~Folgenname' -> 'Serienname~Folgenname (5/6)'
-#VERSION=240222
+#VERSION=240724
 
-#Folgende Variablen sind bereits intern definiert und können verwendet werden.
+# Folgende Variablen sind bereits intern definiert und können verwendet werden.
 # %title%          - Title der Sendung
 # %subtitle%       - Subtitle der Sendung
 # %time%           - Startzeit im Format HH:MM
@@ -49,7 +49,7 @@ SUBTITLE="${DATA[1]}"                             # Kurztext
 
 ### Start
 
-# Ersetz durch Verwendung von SHORTNAME bei Serientitel (epgsearch)
+#* Ersetzt durch Verwendung von SHORTNAME bei Serientitel (epgsearch)
 # Zeichen ersetzen, damit Aufnahmen nicht in unterschiedlichen Ordnern landen
 #case "${DATA[0]}" in
 #  *' - '*) DATA[0]="${DATA[0]//' - '/' – '}" ;;  # Kurzen durch langen Bindestrich (La_Zona_–_Do_not_cross)
@@ -99,10 +99,10 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
     printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # Sendezeit, falls Leer
   fi
 
-  # Erstellen von [SxxExx]
-  [[ -n "$S" ]] && SE="[S${S}E${E}]"
-
   [[ -n "$FOUND_BRACE" ]] && SUBTITLE+=" $FOUND_BRACE"
+
+  # Erstellen von [SxxExx]
+  [[ -n "$S" && -n "$E" ]] && SE="[S${S}E${E}]"
   [[ "${#SE}" -ge 8 ]] && SUBTITLE+="  $SE"
 fi
 
