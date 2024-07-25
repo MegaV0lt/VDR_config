@@ -37,8 +37,8 @@
 # %epgsearchdir%   - epgsearchs Verzeichnis für Konfiguratzionsdateien (z.B. /etc/vdr/plugins/epgsearch)
 
 # Aufruf in epgsearchuservars.conf:
-#%Get_SE%=system(/usr/local/sbin/get_se.sh, %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_lng%)
-#                                            0       1          2         3         4       5         6
+#%Get_SE%=system(/usr/local/sbin/get_se.sh, %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_lng% %Name der Staffel% %Name der Episode%)
+#                                            0       1          2         3         4       5         6          7 (TVScraper)      8 (TVScraper)
 
 #SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
 #SELF_NAME="${SELF##*/}"                          # skript.sh
@@ -95,6 +95,12 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   #  printf -v E '%02d' "${BASH_REMATCH[2]}"  # 08
   #fi
 
+  # TVScraper Daten vorhanden?
+  if [[ -z "$S" && -n "${DATA[7]}" ]] ; then
+    printf -v S '%02d' "${DATA[7]}"  # 01
+    printf -v E '%02d' "${DATA[8]}"  # 03
+  fi
+
   if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017-03-07_13|00-Di.
     printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # Sendezeit, falls Leer
   fi
@@ -104,6 +110,18 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   # Erstellen von [SxxExx]
   [[ -n "$S" && -n "$E" ]] && SE="[S${S}E${E}]"
   [[ "${#SE}" -ge 8 ]] && SUBTITLE+="  $SE"
+fi
+
+# Gefundene Klammern im Titel an Kurztext anhängen
+if [[ -n "$FOUND_BRACE" ]] ; then
+  re='(\(S[0-9]+E[0-9]+\).*)'   # (S01E01)
+  re2='(\[S[0-9]+E[0-9]+\].*)'  # [S01E01]
+  [[ "$SUBTITLE" =~ $re ]] && { SE="${BASH_REMATCH[1]}" ;}
+  [[ "$SUBTITLE" =~ $re2 ]] && { SE2="${BASH_REMATCH[1]}" ;}
+  if [[ -n "$SE" || -n "$SE2" ]] ; then
+    : "${SUBTITLE%  "${SE:-$SE2}"}"
+    SUBTITLE+=" ${FOUND_BRACE}  ${SE2:-$SE2}"
+  fi
 fi
 
 #! -> Das Skript muss eine Zeichenkette <ohne> Zeilenumbruch zurück geben!

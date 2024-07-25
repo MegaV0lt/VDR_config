@@ -42,8 +42,8 @@ if [[ "${#TITLE}" -ge $length ]] ; then
   re2='(\[S[0-9]+E[0-9]+\].*)'  # [S01E01]
   [[ "$TITLE" =~ $re ]] && { SE="${BASH_REMATCH[1]}" ; ((length-=${#SE})) ;}
   [[ "$TITLE" =~ $re2 ]] && { SE2="${BASH_REMATCH[1]}" ; ((length-=${#SE2})) ;}
-  if [[ -n "$SE" && -n "$SE2" ]] ; then
-    : "${TITLE:0:length}" ; TITLE="${_%%' '}…  ${SE}${SE2}"
+  if [[ -n "$SE" || -n "$SE2" ]] ; then
+    : "${TITLE:0:length}" ; TITLE="${_%%' '}…  ${SE:-${SE2}}"
   else
     re3='(\[[0-9]+.*%\].*)'       # [68,3%]
     [[ "$TITLE" =~ $re3 ]] && { UNCOMPLETE="${BASH_REMATCH[1]}" ; ((length-=${#UNCOMPLETE})) ;}
