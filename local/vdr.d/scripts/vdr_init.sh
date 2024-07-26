@@ -12,10 +12,25 @@ source /_config/bin/yavdr_funcs.sh
 export LANG='de_DE.UTF-8'
 export VDR_LANG='de_DE.UTF-8'
 
+# Test
+/_config/local/sbin/check_setup_conf.sh &>/dev/null & disown
+
+# From https://stackoverflow.com/a/69562136/21633953
+#parent=$$
+#( sleep 5 && kill -HUP $parent ) 2>/dev/null &
+
+# From https://stackoverflow.com/a/11056286/21633953
+#( your_command ) & pid=$!
+#( sleep $TIMEOUT && kill -HUP $pid ) 2>/dev/null & watcher=$!
+#wait $pid 2>/dev/null && pkill -HUP -P $watcher
+
 # Starte eigene Skripte in /etc/vdr.d/
 for file in /etc/vdr.d/[0-9]* ; do
   f_logger "Starting $file"
-  source "$file" | logger
+  # source "$file" | logger
+  ( "$file" | logger ) & pid=$!
+  ( sleep 10 && kill -HUP "$pid" ) 2>/dev/null & watcher=$!
+  wait "$pid" 2>/dev/null && pkill -HUP -P "$watcher"
 done
 
 # Aktivie Coredumping, wenn Debug an ist (LOG_LEVEL=3)
@@ -59,6 +74,6 @@ find "$VIDEO"/ -xtype l -print -delete | logger
 find "$VIDEO"/ -name '.rec' -type f -print -delete | logger
 
 # Auf Hintergrundjobs warten
-wait
+# wait
 
 # Ende
