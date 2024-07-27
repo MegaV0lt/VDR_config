@@ -5,7 +5,7 @@
 # Wird kurz vor dem Start von VDR ausgeführt
 # Skripte in /etc/vdr.d werden nacheinander ausgeführt
 #
-# VERSION=230619
+# VERSION=240727
 
 source /_config/bin/yavdr_funcs.sh
 
@@ -29,7 +29,9 @@ for file in /etc/vdr.d/[0-9]* ; do
   f_logger "Starting $file"
   # source "$file" | logger
   ( "$file" | logger ) & pid=$!
+  logger "PID=$pid"
   ( sleep 10 && kill -HUP "$pid" ) 2>/dev/null & watcher=$!
+  logger "Watcher PID=$watcher"
   wait "$pid" 2>/dev/null && pkill -HUP -P "$watcher"
 done
 
