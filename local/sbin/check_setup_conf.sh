@@ -23,7 +23,7 @@ while : ; do  # pidof vdr >/dev/null ; do
         LAST_KEY="$KEY"
     fi
   done
-  sleep 10  # Wait 10 seconds before next check
+  sleep "$INTERVALL"  # Wait before next check
 done
 
 exit  # Ende

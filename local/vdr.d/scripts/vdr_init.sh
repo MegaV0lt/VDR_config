@@ -25,13 +25,11 @@ export VDR_LANG='de_DE.UTF-8'
 #wait $pid 2>/dev/null && pkill -HUP -P $watcher
 
 # Starte eigene Skripte in /etc/vdr.d/
+TIMEOUT=10  # Timeout für Skripte
 for file in /etc/vdr.d/[0-9]* ; do
   f_logger "Starting $file"
-  # source "$file" | logger
-  ( "$file" | logger ) & pid=$!
-  logger "PID=$pid"
-  ( sleep 10 && kill -HUP "$pid" ) 2>/dev/null & watcher=$!
-  logger "Watcher PID=$watcher"
+  ( "$file" | logger -t "${file##*/}") & pid=$!
+  ( sleep "$TIMEOUT" && kill -HUP "$pid" ) 2>/dev/null & watcher=$!
   wait "$pid" 2>/dev/null && pkill -HUP -P "$watcher"
 done
 
@@ -74,8 +72,5 @@ find "$VIDEO"/ -xtype l -print -delete | logger
 
 # Alte .rec löschen
 find "$VIDEO"/ -name '.rec' -type f -print -delete | logger
-
-# Auf Hintergrundjobs warten
-# wait
 
 # Ende
