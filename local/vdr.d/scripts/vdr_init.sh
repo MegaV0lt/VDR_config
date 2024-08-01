@@ -15,10 +15,6 @@ export VDR_LANG='de_DE.UTF-8'
 # Test
 # /_config/local/sbin/check_setup_conf.sh &>/dev/null & disown
 
-# From https://stackoverflow.com/a/69562136/21633953
-#parent=$$
-#( sleep 5 && kill -HUP $parent ) 2>/dev/null &
-
 # From https://stackoverflow.com/a/11056286/21633953
 #( your_command ) & pid=$!
 #( sleep $TIMEOUT && kill -HUP $pid ) 2>/dev/null & watcher=$!
@@ -28,7 +24,7 @@ export VDR_LANG='de_DE.UTF-8'
 TIMEOUT=10  # Timeout für Skripte
 for file in /etc/vdr.d/[0-9]* ; do
   f_logger "Starting $file"
-  ( "$file" | logger -t "${file##*/}") & pid=$!
+  ( "$file" | logger -t "${file##*/}" ) & pid=$!
   ( sleep "$TIMEOUT" && kill -HUP "$pid" ) 2>/dev/null & watcher=$!
   wait "$pid" 2>/dev/null && pkill -HUP -P "$watcher"
 done
@@ -67,7 +63,7 @@ fi
 #   done > /etc/vdr/reccmds.conf
 #fi
 
-: "${VIDEO:=/video}"  # If empty set to default
+: "${VIDEO:=/video}"  # Vorgabe wenn leer
 
 # Defekte Symlinks in /video entfernen
 find "$VIDEO"/ -xtype l -print -delete | logger -t "$SELF_NAME"
