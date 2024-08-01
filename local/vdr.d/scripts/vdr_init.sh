@@ -13,7 +13,7 @@ export LANG='de_DE.UTF-8'
 export VDR_LANG='de_DE.UTF-8'
 
 # Test
-/_config/local/sbin/check_setup_conf.sh &>/dev/null & disown
+# /_config/local/sbin/check_setup_conf.sh &>/dev/null & disown
 
 # From https://stackoverflow.com/a/69562136/21633953
 #parent=$$
@@ -40,8 +40,8 @@ if [[ "$LOG_LEVEL" -gt 2 ]] ; then
    echo '/var/tmp/corefiles/core' > /proc/sys/kernel/core_pattern
    echo '1' > /proc/sys/kernel/core_uses_pid
    ulimit -c unlimited
-   locale -v | logger
-   env | logger
+   locale -v | logger -t "$SELF_NAME"
+   env | logger -t "$SELF_NAME"
 fi
 
 #Build commands.conf
@@ -67,10 +67,12 @@ fi
 #   done > /etc/vdr/reccmds.conf
 #fi
 
+: "${VIDEO:=/video}"  # If empty set to default
+
 # Defekte Symlinks in /video entfernen
-find "$VIDEO"/ -xtype l -print -delete | logger
+find "$VIDEO"/ -xtype l -print -delete | logger -t "$SELF_NAME"
 
 # Alte .rec löschen
-find "$VIDEO"/ -name '.rec' -type f -print -delete | logger
+find "$VIDEO"/ -name '.rec' -type f -print -delete | logger -t "$SELF_NAME"
 
 # Ende
