@@ -63,6 +63,11 @@ fi
 #   done > /etc/vdr/reccmds.conf
 #fi
 
+# Alte core.* Dateien entfernen
+if [[ -d /var/tmp/corefiles ]] ; then
+  find /var/tmp/corefiles/ -type f -mtime +30 -print -delete | logger -t "$SELF_NAME"
+fi
+
 : "${VIDEO:=/video}"  # Vorgabe wenn leer
 
 # Defekte Symlinks in /video entfernen
