@@ -1,0 +1,5 @@
+# check_setupconf.sh - Prüfen, ob beim VDR-Start Fehler im der setup.conf
+# vorhanden sind. Beispiel:
+# Sep 03 12:30:25 [vdr] [3372] ERROR: unknown config parameter: SupportTeletext = 0
+
+/usr/local/sbin/check_setupconf.sh
