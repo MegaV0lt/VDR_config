@@ -1,6 +1,5 @@
 # Datei wird von yavdr_funcs.sh eingelesen
 
-
 # LogLevel (0=Aus, 1=Normal, 2=Info, 3=Debug)
 LOG_LEVEL="2"
 
