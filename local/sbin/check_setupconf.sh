@@ -50,6 +50,7 @@ if [[ -e "$FOUND_ERRORS" ]] ; then       # Es sind bereits Fehler gespeichert wo
       fi
     done
   done < "$SETUPCONF"
+
   if pidof vdr &>/dev/null ; then
     f_log "VDR läuft! - Speichere unter ${SETUPCONF}.new"
     printf '%s\n' "${TMP_SETUPCONF[@]}" > "${SETUPCONF}.new"  # Neue setup.conf
@@ -69,6 +70,7 @@ else
       sleep 1 ; ((cnt++))
       [[ "$WAITTIME" -le "$cnt" ]] && break
     done
+
     while read -r ; do                              # /var/log/syslog
       case "$REPLY" in
         *$SEARCHSTRING*)
@@ -77,6 +79,7 @@ else
         ;;
       esac
     done < <(tail -n 500 "$SYSLOG")
+    
     # Speichern und dabei doppelte Einträge löschen und sortieren
     [[ -n "${TMP_RESULT[*]}" ]] && printf '%s\n' "${TMP_RESULT[@]}" | sort -u > "$FOUND_ERRORS"
   fi
