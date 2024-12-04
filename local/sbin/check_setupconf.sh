@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # check_setupconf.sh - Prüfen, ob beim VDR-Start Fehler im der setup.conf
 # vorhanden sind. Beispiel:
 # Sep 03 12:30:25 [vdr] [3372] ERROR: unknown config parameter: SupportTeletext = 0
 
 # Author: MegaV0lt
-VERSION=230823
+#VERSION=241204
 
 # Aktivierung ab GenVDR V3:
 # echo /usr/local/sbin/check_setupconf.sh > /etc/vdr.d/8101_check_setupconf
@@ -15,7 +15,7 @@ VERSION=230823
 # --- Einstellungen ---
 SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"   # Eigener Pfad (besseres $0)
 SELF_NAME="${SELF##*/}"
-SETUPCONF='/etc/vdr/setup.conf'                   # VDR's setup.conf
+SETUPCONF="$(readlink -m /etc/vdr/setup.conf)"    # VDR's setup.conf
 SYSLOG='/var/log/syslog'                          # Syslog, wo nach den Meldungen gesucht wird
 WAITTIME=10                                       # Wartezeit, bis VDR gestartet ist
 SEARCHSTRING='ERROR: unknown config parameter:'   # Ferhlerstring
@@ -28,8 +28,11 @@ LOG="/var/log/${SELF_NAME%.*}.log"                # Logs sammlen
 
 # --- Funktionen ---
 f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
-  logger -s -t "${SELF_NAME%.*}" "$*"
-  [[ -w "$LOG" ]] && echo "$(date +"%F %T") => $*" >> "$LOG"  # Zusätzlich in Datei schreiben
+  logger -t "${SELF_NAME%.*}" "$*"
+  if [[ -n "$LOG" ]] ; then
+    [[ ! -e "$LOG" ]] && : >> "$LOG"
+    [[ -w "$LOG" ]] && echo "$(date +"%F %T") => $*" >> "$LOG"  # Zusätzlich in Datei schreiben
+  fi
 }
 
 # --- Start ---
@@ -58,7 +61,7 @@ if [[ -e "$FOUND_ERRORS" ]] ; then       # Es sind bereits Fehler gespeichert wo
 else
   if [[ -z "$MAINSCRIPT" ]] ; then
     f_log "Keine ${FOUND_ERRORS}-Datei gefunden. Starte im Hintergrund neu! - Exit"
-    "$SELF" --background &       # Neu starten im Hintergrund
+    "$SELF" --background &>/dev/null & disown  # Neu starten im Hintergrund
     sleep 0.5
   else
     until pidof vdr &>/dev/null ; do  # Warten, bis VDR gestartet ist

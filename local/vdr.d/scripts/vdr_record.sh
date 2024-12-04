@@ -38,13 +38,13 @@ case "$1" in
     disown -a  # Alle Jobs
 
     # TVScraper Bild(er) verlinken, falls vorhanden
-    files=(banner.jpg poster.jpg fanart.jpg)  # Bilder in der angegebenen Reihenfolge testen
-    for file in "${files[@]}" ; do
-      if [[ -e "${2}/${file}" ]] ; then
-        ln --relative --symbolic "${2}/${file}" "${2}/cover_vdr.jpg"
-        break
-      fi
-    done
+    #files=(banner.jpg poster.jpg fanart.jpg)  # Bilder in der angegebenen Reihenfolge testen
+    #for file in "${files[@]}" ; do
+    #  if [[ -e "${2}/${file}" ]] ; then
+    #    ln --relative --symbolic "${2}/${file}" "${2}/cover_vdr.jpg"
+    #    break
+    #  fi
+    #done
     ;;
   editing)  # Vor dem editieren einer Aufnahme
     # echo "Editing recording $2"
@@ -55,7 +55,7 @@ case "$1" in
     # echo "Source recording $3"
     # Dateien von TVScraper und epg2vdr zur editierten Aufnahme kopieren
     files=(banner.jpg fanart.jpg poster.jpg tvscraper.json tvscrapper.json)  # TVScraper
-    files+=(cover_vdr.jpg)  # Verlinktes Bild vom TVScraper (Siehe oben)
+    #files+=(cover_vdr.jpg)  # Verlinktes Bild vom TVScraper (Siehe oben)
     files+=(info.epg2vdr)   # epg2vdr
     for file in "${files[@]}" ; do
       [[ -e "${3}/${file}" ]] && cp --archive --update "${3}/${file}" "${2}"

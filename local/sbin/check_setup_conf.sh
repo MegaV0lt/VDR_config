@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Skript to check values in setup.conf
+# Script to check values in setup.conf
 
 VDR_CONF='/etc/vdr/setup.conf'      # VDR's setup.conf
 KEYS_TO_CHECK=(Setup.CurrentDolby)  # Setupkey to check
