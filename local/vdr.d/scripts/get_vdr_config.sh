@@ -45,7 +45,7 @@ f_parse_config(){
 }
 
 # Start
-[[ "$VDR_CONF" -ot "$VDR_CFG" ]] && { echo "$VDR_CONF older than ${VDR_CFG}. Exit!" ; exit ;}
+[[ "$VDR_CONF" -nt "$VDR_CFG" ]] && { echo "$VDR_CONF newer than ${VDR_CFG}. Exit!" ; exit ;}
 
 # f_parse_config <file> [<default array name>]
 f_parse_config "$VDR_CONF" || { echo "Error parsing $VDR_CONF" ; exit 1 ;}
