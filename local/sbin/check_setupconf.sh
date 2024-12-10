@@ -45,10 +45,15 @@ if [[ -e "$FOUND_ERRORS" ]] ; then       # Es sind bereits Fehler gespeichert wo
     for entry in "${MAPFILE[@]}" ; do
       if [[ "$REPLY" == "$entry" ]] ; then
         f_log "Eintrag in $SETUPCONF gefunden! (${REPLY})"
-      else
-        TMP_SETUPCONF+=("$REPLY")        # In Array speichern
+        FOUND=true
+        break  # Schleife beenden
       fi
     done
+    
+    if [[ -z "$FOUND" ]] ; then
+      TMP_SETUPCONF+=("$REPLY")        # In Array speichern
+      unset -v 'FOUND'
+    fi
   done < "$SETUPCONF"
 
   if pidof vdr &>/dev/null ; then
@@ -79,7 +84,7 @@ else
         ;;
       esac
     done < <(tail -n 500 "$SYSLOG")
-    
+
     # Speichern und dabei doppelte Einträge löschen und sortieren
     [[ -n "${TMP_RESULT[*]}" ]] && printf '%s\n' "${TMP_RESULT[@]}" | sort -u > "$FOUND_ERRORS"
   fi
