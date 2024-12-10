@@ -29,6 +29,7 @@ LOG="/var/log/${SELF_NAME%.*}.log"                # Logs sammlen
 # --- Funktionen ---
 f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
   logger -t "${SELF_NAME%.*}" "$*"
+  [[ -t 1 ]] && echo "$*"
   if [[ -n "$LOG" ]] ; then
     [[ ! -e "$LOG" ]] && : >> "$LOG"
     [[ -w "$LOG" ]] && echo "$(date +"%F %T") => $*" >> "$LOG"  # Zusätzlich in Datei schreiben
@@ -49,7 +50,7 @@ if [[ -e "$FOUND_ERRORS" ]] ; then       # Es sind bereits Fehler gespeichert wo
         break  # Schleife beenden
       fi
     done
-    
+
     if [[ -z "$FOUND" ]] ; then
       TMP_SETUPCONF+=("$REPLY")        # In Array speichern
       unset -v 'FOUND'
