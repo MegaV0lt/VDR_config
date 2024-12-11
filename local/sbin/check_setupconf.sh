@@ -5,7 +5,7 @@
 # Sep 03 12:30:25 [vdr] [3372] ERROR: unknown config parameter: SupportTeletext = 0
 
 # Author: MegaV0lt
-#VERSION=241204
+#VERSION=241211
 
 # Aktivierung ab GenVDR V3:
 # echo /usr/local/sbin/check_setupconf.sh > /etc/vdr.d/8101_check_setupconf
@@ -37,7 +37,7 @@ f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
 }
 
 # --- Start ---
-[[ "$1" == '--background' ]] && MAINSCRIPT=0
+[[ "$1" == '--background' ]] && MAINSCRIPT=false
 
 if [[ -e "$FOUND_ERRORS" ]] ; then       # Es sind bereits Fehler gespeichert worden
   mapfile -t < "$FOUND_ERRORS"           # Gespeicherte Fehler einlesen (Array MAPFILE)
@@ -47,7 +47,7 @@ if [[ -e "$FOUND_ERRORS" ]] ; then       # Es sind bereits Fehler gespeichert wo
       if [[ "$REPLY" == "$entry" ]] ; then
         f_log "Eintrag in $SETUPCONF gefunden! (${REPLY})"
         FOUND=true
-        break  # Schleife beenden
+        #break  # Schleife beenden
       fi
     done
 
