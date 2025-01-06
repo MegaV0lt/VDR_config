@@ -5,9 +5,14 @@
 # Wird kurz vor dem Start von VDR ausgeführt
 # Skripte in /etc/vdr.d werden nacheinander ausgeführt
 #
-# VERSION=240727
+# VERSION=250106
 
-source /_config/bin/yavdr_funcs.sh
+source /_config/bin/yavdr_funcs.sh &>/dev/null
+
+# Funktionen
+if ! declare -F f_logger >/dev/null ; then
+  f_logger() { logger -t yaVDR "vdr_init.sh: $*" ;}  # Einfachere Version
+fi
 
 export LANG='de_DE.UTF-8'
 export VDR_LANG='de_DE.UTF-8'
@@ -24,12 +29,12 @@ export VDR_LANG='de_DE.UTF-8'
 TIMEOUT=10  # Timeout für Skripte
 for file in /etc/vdr.d/[0-9]* ; do
   f_logger "Starting $file"
-  ( "$file" | logger -t "${file##*/}" ) & pid=$!
-  ( sleep "$TIMEOUT" && kill -HUP "$pid" ) 2>/dev/null & watcher=$!
+  ("$file" | logger -t "${file##*/}") & pid=$!
+  (sleep "$TIMEOUT" && kill -HUP "$pid") 2>/dev/null & watcher=$!
   wait "$pid" 2>/dev/null && pkill -HUP -P "$watcher"
 done
 
-# Aktivie Coredumping, wenn Debug an ist (LOG_LEVEL=3)
+# Aktiviere Coredumping, wenn Debug an ist (LOG_LEVEL=3)
 if [[ "$LOG_LEVEL" -gt 2 ]] ; then
    [[ ! -d /var/tmp/corefiles ]] && mkdir /var/tmp/corefiles
    chmod 777 /var/tmp/corefiles
@@ -74,6 +79,9 @@ fi
 find "$VIDEO"/ -xtype l -print -delete | logger -t "$SELF_NAME"
 
 # Alte .rec löschen
-find "$VIDEO"/ -name '.rec' -type f -print -delete | logger -t "$SELF_NAME"
+find "$VIDEO"/ -name '.rec' -type f -mtime +1 -print -delete | logger -t "$SELF_NAME"
+
+# Leere Verzeichnisse in /video entfernen
+find "$VIDEO"/ -type d -empty -print -delete | logger -t "$SELF_NAME"
 
 # Ende
