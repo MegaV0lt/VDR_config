@@ -14,7 +14,7 @@
 # Aufruf bei 'startet' und 'after':
 #   /etc/vdr.d/scripts/vdr_checkrec.sh "$1" "$2" &>/dev/null & disown
 
-# VERSION=241204
+# VERSION=250107
 
 source /_config/bin/yavdr_funcs.sh &>/dev/null
 
@@ -206,7 +206,8 @@ case "$1" in
     fi
 
     while [[ -e "$MARKAD_PID" ]] ; do  # Warten, bis markad beendet ist
-      sleep 10
+      sleep 10 ; ((count++))
+      [[ $count -gt $((6 * 30)) ]] && { f_log "Timeout (30 minutes) waiting for markad!" ;}
     done
 
     # Wird die Aufnahme gerade abgespielt?

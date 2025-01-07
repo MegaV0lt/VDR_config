@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source /_config/bin/yavdr_funcs.sh
+source /_config/bin/yavdr_funcs.sh &>/dev/null
 
 echo 'Collecting information…'
 if [[ "$1" == '-v' ]] ; then
@@ -71,7 +71,7 @@ for i in /proc/asound/card[0-9] ; do
 done
 
 tar -cJf "$LOG_ARCH" .
-f_svdrpsend_msgt "$LOG_ARCH wurde erstellt"
+#f_svdrpsend_msgt "$LOG_ARCH wurde erstellt"
 f_logger -s "$LOG_ARCH wurde erstellt"
 cd ..
 rm -rf "$LOG_DIR"

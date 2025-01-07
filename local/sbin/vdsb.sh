@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # vdsb.sh - Video Data Stram Broken
-VERSION=240324
+VERSION=250107
 
 # Wenn Syslog-NG oder rsyslog verwendet wird, startet Syslog-NG das Skript und schickt die
 # Meldung via stdin an das Skript. Dazu wird eine "while" schleife verwendet.
@@ -81,8 +81,8 @@ f_find_vdsb_timer() {  # Vom VDSB betroffene Timer finden
 
 f_rotate_log  # Log rotieren
 
-# Lösche VDSB_*- und DVBAPI_UK_*-Dateien die älter als 14 Tage sind
-find "$LOG_DIR" -maxdepth 1 \( -name "VDSB_*" -o -name "DVBAPI_UK_*" \) -type f -mtime +14 -delete
+# Lösche VDSB_*- und DVBAPI_UK_*-Dateien die älter als 7 Tage sind
+find "$LOG_DIR" -maxdepth 1 \( -name "VDSB_*" -o -name "DVBAPI_UK_*" \) -type f -mtime +7 -delete
 
 logdaemon='rsyslogd'  # syslog-ng bei Gen2VDR
 if pidof "$logdaemon" >/dev/null ; then  # rsyslog läuft (yaVDR)
@@ -101,10 +101,10 @@ if pidof "$logdaemon" >/dev/null ; then  # rsyslog läuft (yaVDR)
     # fi
 
     DIFF=$((SECONDS - LAST_MSG))
-    [[ $DIFF -gt 600 ]] && LOGNUM=0  # Älter als 10 Minuten -> Bei 0 beginnen
+    [[ $DIFF -gt $(( 30 * 60 )) ]] && LOGNUM=0  # Älter als 30 Minuten -> Bei 0 beginnen
     ((LOGNUM+=1))  # Zähler um 1 erhöhen
-    if [[ $LOGNUM -lt 5 || $DIFF -ge 60 ]] ; then  # Ab 5 nur ein mal pro Minute
-      f_svdrpsend_msgt "%>> VDSB entdeckt! (${LOGNUM}) <<"  # Meldung am VDR
+    if [[ $LOGNUM -lt 5 || $DIFF -ge $(( 5 * 60 )) ]] ; then  # Ab 5 nur ein mal pro 5 Minuten
+      f_svdrpsend_msgt "%>> VDSB entdeckt! (${LOGNUM}) <<"    # Meldung am VDR
       LAST_MSG="$SECONDS"
     fi
 
