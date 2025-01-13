@@ -75,11 +75,16 @@ fi
 
 : "${VIDEO:=/video}"  # Vorgabe wenn leer
 
+logger -t "$SELF_NAME" 'Clean up /video directory…'
+
 # Defekte Symlinks in /video entfernen
 find "$VIDEO"/ -xtype l -print -delete | logger -t "$SELF_NAME"
 
 # Alte .rec löschen
 find "$VIDEO"/ -name '.rec' -type f -mtime +1 -print -delete | logger -t "$SELF_NAME"
+
+# Alte .markad.pid löschen
+find "$VIDEO"/ -name 'markad.pid' -type f -mtime +1 -print -delete | logger -t "$SELF_NAME"
 
 # Leere Verzeichnisse in /video entfernen
 find "$VIDEO"/ -type d -empty -print -delete | logger -t "$SELF_NAME"

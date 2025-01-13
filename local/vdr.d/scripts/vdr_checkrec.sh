@@ -207,7 +207,7 @@ case "$1" in
 
     while [[ -e "$MARKAD_PID" ]] ; do  # Warten, bis markad beendet ist
       sleep 10 ; ((count++))
-      [[ $count -gt $((6 * 30)) ]] && { f_log "Timeout (30 minutes) waiting for markad!" ;}
+      [[ $count -gt $((6 * 60)) ]] && { f_log "Timeout (60 minutes) waiting for markad!"; break ;}
     done
 
     # Wird die Aufnahme gerade abgespielt?
