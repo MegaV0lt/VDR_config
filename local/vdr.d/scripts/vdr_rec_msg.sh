@@ -4,8 +4,9 @@
 # Skript dient zur Anzeige von "Aufnahme"- und "Beendet"-Meldugen
 #
 
-# VERSION=240322
+# VERSION=250205
 
+# shellcheck disable=SC1091
 source /_config/bin/yavdr_funcs.sh &>/dev/null
 
 # Vorgabewert für Video Verzeichniss, falls nicht gesetzt
@@ -51,6 +52,22 @@ for ch in $SPECIALCHARS ; do
   TITLE="${TITLE//${ch}/\\${ch}}"
   REC="${REC//${ch}/\\${ch}}"
 done
+
+# Sehr lange Titel auf 99 Zeichen kürzen
+length=99
+if [[ "${#TITLE}" -ge $length ]] ; then
+  re='(\(S[0-9]+E[0-9]+\).*)'   # (S01E01)
+  re2='(\[S[0-9]+E[0-9]+\].*)'  # [S01E01]
+  [[ "$TITLE" =~ $re ]] && { SE="${BASH_REMATCH[1]}" ; ((length-=${#SE})) ;}
+  [[ "$TITLE" =~ $re2 ]] && { SE2="${BASH_REMATCH[1]}" ; ((length-=${#SE2})) ;}
+  if [[ -n "$SE" || -n "$SE2" ]] ; then
+    : "${TITLE:0:length}" ; TITLE="${_%%' '}…  ${SE:-${SE2}}"
+  else
+    re3='(\[[0-9]+.*%\].*)'       # [68,3%]
+    [[ "$TITLE" =~ $re3 ]] && { UNCOMPLETE="${BASH_REMATCH[1]}" ; ((length-=${#UNCOMPLETE})) ;}
+    : "${TITLE:0:length + 1}" ; TITLE="${_%%' '}…  $UNCOMPLETE"
+  fi
+fi
 
 case "$1" in
   before)
