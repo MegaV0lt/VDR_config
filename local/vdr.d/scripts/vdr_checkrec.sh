@@ -205,6 +205,24 @@ case "$1" in
       exit  # Keine weitere Aktion nötig
     fi
 
+    # Sehr lange Verzeichnisnamen auf 128 Zeichen kürzen
+    length=128
+    if [[ "${#NEW_REC_NAME}" -ge $length ]] ; then
+      f_log "Shortening $NEW_REC_NAME to $length characters"
+      re='(\(S[0-9]+E[0-9]+\).*)'   # (S01E01)
+      re2='(\[S[0-9]+E[0-9]+\].*)'  # [S01E01]
+      [[ "$NEW_REC_NAME" =~ $re ]] && { SE="${BASH_REMATCH[1]}" ; ((length-=${#SE})) ;}
+      [[ "$NEW_REC_NAME" =~ $re2 ]] && { SE2="${BASH_REMATCH[1]}" ; ((length-=${#SE2})) ;}
+      if [[ -n "$SE" || -n "$SE2" ]] ; then
+        : "${NEW_REC_NAME:0:length}" ; NEW_REC_NAME="${_%%' '}…  ${SE:-${SE2}}"
+      else
+        re3='(\[[0-9]+.*%\].*)'       # [68,3%]
+        [[ "$NEW_REC_NAME" =~ $re3 ]] && { UNCOMPLETE="${BASH_REMATCH[1]}" ; ((length-=${#UNCOMPLETE})) ;}
+        : "${NEW_REC_NAME:0:length + 1}" ; NEW_REC_NAME="${_%%' '}…  $UNCOMPLETE"
+      fi
+      f_log "Shortened name: $NEW_REC_NAME"
+    fi
+
     while [[ -e "$MARKAD_PID" ]] ; do  # Warten, bis markad beendet ist
       sleep 10 ; ((count++))
       [[ $count -gt $((6 * 60)) ]] && { f_log "Timeout (60 minutes) waiting for markad!"; break ;}
