@@ -98,8 +98,10 @@ f_dbus_send_message() {
     type='error'
   fi
 
-  dbus-send --system --type=method_call --dest=de.tvdr.vdr --print-reply \
-    /Skin de.tvdr.vdr.skin.SendMessage string:"$message" string:"$type"
+  if ! dbus-send --system --type=method_call --dest=de.tvdr.vdr --print-reply \
+    /Skin de.tvdr.vdr.skin.SendMessage string:"$message" string:"$type" ; then
+    f_svdrpsend_msgt "$message"
+  fi
 }
 
 f_logger '<START>'
