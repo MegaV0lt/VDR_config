@@ -98,9 +98,13 @@ f_dbus_send_message() {
     type='error'
   fi
 
-  if ! dbus-send --system --type=method_call --dest=de.tvdr.vdr --print-reply \
-    /Skin de.tvdr.vdr.skin.SendMessage string:"$message" string:"$type" ; then
-    f_svdrpsend_msgt "$message"
+  #if ! dbus-send --system --type=method_call --dest=de.tvdr.vdr --print-reply \
+  #  /Skin de.tvdr.vdr.skin.SendMessage string:"$message" string:"$type" ; then
+  #  f_svdrpsend_msgt "$1"
+  #fi
+
+  if ! vdr-dbus-send /Skin skin.SendMessage string:"$message" string:"$type" ; then
+    f_svdrpsend_msgt "$1"
   fi
 }
 
