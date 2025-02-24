@@ -104,7 +104,7 @@ if pidof "$logdaemon" >/dev/null ; then  # rsyslog läuft (yaVDR)
     [[ $DIFF -gt $(( 30 * 60 )) ]] && LOGNUM=0  # Älter als 30 Minuten -> Bei 0 beginnen
     ((LOGNUM+=1))  # Zähler um 1 erhöhen
     if [[ $LOGNUM -lt 5 || $DIFF -ge $(( 5 * 60 )) ]] ; then  # Ab 5 nur ein mal pro 5 Minuten
-      f_svdrpsend_msgt "%>> VDSB entdeckt! (${LOGNUM}) <<"    # Meldung am VDR
+      f_dbus_send_message "%>> VDSB entdeckt! (${LOGNUM}) <<"    # Meldung am VDR
       LAST_MSG="$SECONDS"
     fi
 

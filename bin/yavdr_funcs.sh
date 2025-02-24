@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # This file has to be included via source command
-# VERSION=240219
+# VERSION=250224
 
 trap f_exit EXIT
 
@@ -27,7 +27,8 @@ f_logger() {
       -o|--osd)
         parm='--stderr' ; shift
         #/usr/bin/vdr-dbus-send /Skin skin.QueueMessage string:"$*" ;;
-        f_svdrpsend_msgt "$*" ;;
+        #f_svdrpsend_msgt "$*" ;;
+        f_dbus_send_message "$@" ;;
     esac
     logger "$parm" --tag 'yaVDR' "[$$] ${SELF_NAME}: $*"
   fi
@@ -66,7 +67,7 @@ f_rotate_log() {  # Log rotieren wenn zu groß
 #  return 1
 #}
 
-f_svdrpsend_msgt() {
+f_svdrpsend_msgt() {  # Benötigt gepatchten VDR
   mapfile -t < <("$SVDRPSEND" MSGT "$*")    # Prüfen ob VDR den Befehl kennt
   # 220 vdr01 SVDRP VideoDiskRecorder 2.6.1; Thu Oct 27 15:30:24 2022; UTF-8
   # 500 Command unrecognized: "MSGT"
@@ -75,6 +76,30 @@ f_svdrpsend_msgt() {
     : "${1#@}" ; : "${_#%}"                  # '%' oder '@' entfernen
     "$SVDRPSEND" MESG "${_} ${*:2}"
   fi
+}
+
+  # Sends a message to the VDR (Video Disk Recorder) system via D-Bus.
+  #
+  # Parameters:
+  #   $1 - The message to be sent. If the message starts with '%', it is treated as a warning.
+  #        If it starts with '@', it is treated as an error. Otherwise, it defaults to an info message.
+  #   $2 - (Optional) The type of message (e.g., info, warning, error). Defaults to 'info' if not provided.
+  #
+  # The function uses the dbus-send command to dispatch the message to the VDR system, modifying the
+  # message type based on the prefix of the message if necessary.
+
+f_dbus_send_message() {
+  local message="$1" type="${2:-info}"
+  if [[ "${message[0]}" == '%' ]] ; then
+    message="${message:1}"  # % entfernen
+    type='warning'
+  elif [[ "${message[0]}" == '@' ]] ; then
+    message="${message:1}"  # @ entfernen
+    type='error'
+  fi
+
+  dbus-send --system --type=method_call --dest=de.tvdr.vdr --print-reply \
+    /Skin de.tvdr.vdr.skin.SendMessage string:"$message" string:"$type"
 }
 
 f_logger '<START>'

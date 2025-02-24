@@ -62,7 +62,7 @@ if [ "${1^^}" == "TEST" ] ; then
 fi
 
 # Meldung am VDR
-#f_svdrpsend_msgt "$MESG"
+#f_dbus_send_message "$MESG"
 #[ $LOGNUM -gt 3 ] && cleanup    # Ende
 
 # Laufende Aufzeichnungen und Timer

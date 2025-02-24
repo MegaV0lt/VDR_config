@@ -273,7 +273,7 @@ else  # Metalog?
   fi
 
   # Meldung am VDR
-  f_svdrpsend_msgt "$MESG"
+  f_dbus_send_message "$MESG"
   # [[ $LOGNUM -gt 3 || $RINGBUFFER -gt 2 ]] && f_cleanup
 
   echo "$0 - $1 - $2 - $3" > "$TMP_DIR/info.txt"

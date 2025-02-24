@@ -1,2 +1,2 @@
-./local/vdr.d/conf/*
-vdr
+local/vdr.d/conf/*
+local/vdr.d/conf/vdr

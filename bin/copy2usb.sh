@@ -20,7 +20,7 @@ SRC="$1"
 
 if ! declare -F f_logger >/dev/null ; then
   f_logger() { logger -t yaVDR "copy2usb.sh: $*" ;}
-  f_svdrpsend_msgt() { svdrpsend "$@" ;}
+  f_dbus_send_message() { svdrpsend "$@" ;}
 fi
 
 : "${TITLE//_/ }"      # Alle _ durch Leerzeichen ersetzen
@@ -53,7 +53,7 @@ fi
 
 if [[ -e "${1}/.timer" ]] ; then  # Prüfen ob Aufnahme noch läuft
   f_logger "Recording $SRC still running! Aborting!"
-  f_svdrpsend_msgt "%Aufnahme \"${TITLE}\" läuft noch. Abbruch!"
+  f_dbus_send_message "%Aufnahme \"${TITLE}\" läuft noch. Abbruch!"
   exit 1
 fi
 
@@ -62,7 +62,7 @@ if [[ -e "${1}/${FLAG}" ]] ; then  # Prüfen ob kopiervorgang schon läuft
     rm "${1}/${FLAG}"  # Entfernen, falls älter als eine Stunde
   else
     f_logger "Recording $SRC still in copy process! Aborting!"
-    f_svdrpsend_msgt "%Aufnahme \"${TITLE}\" wird gerade kopiert. Abbruch!"
+    f_dbus_send_message "%Aufnahme \"${TITLE}\" wird gerade kopiert. Abbruch!"
     exit 1
   fi
 fi
@@ -83,16 +83,16 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
      echo 'source /_config/bin/yavdr_funcs.sh &>/dev/null'
      echo 'if ! declare -F f_logger >/dev/null ; then'
      echo "  f_logger() { logger -t yaVDR \"$CP2USB: $*\" ;}"
-     echo '  f_svdrpsend_msgt() { svdrpsend "$@" ;}'
+     echo '  f_dbus_send_message() { svdrpsend "$@" ;}'
      echo 'fi'
      echo "if ! mkdir --parents \"${TARGET}${TD}\" ; then"
-     echo "  f_svdrpsend_msgt \"@FEHLER beim erstellen von '[${TARGET_DISK}]${VIDEO}/${TITLE}'\""
+     echo "  f_dbus_send_message \"@FEHLER beim erstellen von '[${TARGET_DISK}]${VIDEO}/${TITLE}'\""
      echo 'fi'
-     echo "f_svdrpsend_msgt \"Kopiere '${TITLE}' nach [${TARGET_DISK}]${VIDEO}\""
+     echo "f_dbus_send_message \"Kopiere '${TITLE}' nach [${TARGET_DISK}]${VIDEO}\""
      echo "if rsync --archive --bwlimit=${LIMIT} --no-links \"${SRC}\" \"${TARGET}${TD}\" &> \"${CP2USB%.*}.rsync.log\" ; then"
-     echo "  f_svdrpsend_msgt \"'${TITLE}' wurde nach [${TARGET_DISK}]${VIDEO} kopiert\""
+     echo "  f_dbus_send_message \"'${TITLE}' wurde nach [${TARGET_DISK}]${VIDEO} kopiert\""
      echo 'else'
-     echo "  f_svdrpsend_msgt \"@FEHLER beim kopieren von '${TITLE}'\""
+     echo "  f_dbus_send_message \"@FEHLER beim kopieren von '${TITLE}'\""
      echo '  exit 1'
      echo 'fi'
      echo "rm \"${1}/${FLAG}\""   # Kopier-Flag löschen
@@ -102,6 +102,6 @@ if [[ -n "$TARGET" && -d "$TARGET" && -n "$SRC" && -d "$SRC" ]] ; then
   "$CP2USB" &>/dev/null & disown  # Temporäres Skript im Hintergrund starten
 
 else
-  f_logger -s "Illegal parameter <${1}> or no usb drive found!"
-  f_svdrpsend_msgt "@Ungültiger Parameter <${1}> oder kein USB-Laufwerk gefunden!"
+  f_logger -s "Invalid parameter <${1}> or no usb drive found!"
+  f_dbus_send_message "@Ungültiger Parameter <${1}> oder kein USB-Laufwerk gefunden!"
 fi
