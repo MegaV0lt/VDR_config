@@ -32,10 +32,11 @@
 # $1 <command>  after
 # $2 <path to .rec> /video0/hitec/Doku/%Die_stille_Revolution_der_Mechatronik/2004-04-23.15\:25.50.99.rec
 #
+# VERSION=250516
 
 # Epg definitions
-EPGIMAGESPATH="/var/cache/vdr/epgimages"
-EPGIMAGESFORMAT="jpg"
+EPGIMAGESPATH='/var/cache/vdr/epgimages'
+EPGIMAGESFORMAT='jpg'
 
 # Eventid for recording
 f_geteventid() {
@@ -47,20 +48,22 @@ f_geteventid() {
 }
 
 f_copyepgimages() {
-	# This function takes 3 arguments:
-	# $1 directory that contains the info file for the recording
-	# $2 destination for epgimages
-	# $3 directory with epgimages
-    src="$1"
-    target="$2"
-    epgimages_dir="$3"
+    # This function takes 3 arguments:
+    src="$1"            # $1 directory that contains the info file for the recording
+    target="$2"         # $2 destination for epgimages
+    epgimages_dir="$3"  # $3 directory with epgimages
 
-    for i in "$src" "$target" "$epgimages_dir"; do
-		[[ -z "$i" ]] && echo "f_copyepgimages: got an invalid argument" && exit 0
-	done
+    if [[ -z "$src" || -z "$target" || -z "$epgimages_dir" ]]; then
+        echo "f_copyepgimages: got an invalid argument" && exit 0
+    fi
 
-	f_geteventid || return 0
-	find "$epgimages_dir" -name "${EVENTID}_*.${EPGIMAGESFORMAT}" -exec cp {} "${target}/" \;
+    f_geteventid || return 0
+
+    shopt -s nullglob
+    for file in "${epgimages_dir}/${EVENTID}"_*."${EPGIMAGESFORMAT}"; do
+        cp "$file" "${target}/"
+    done
+    shopt -u nullglob
 }
 
 case $1 in
