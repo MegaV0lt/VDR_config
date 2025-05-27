@@ -5,16 +5,17 @@
 # Sep 03 12:30:25 [vdr] [3372] ERROR: unknown config parameter: SupportTeletext = 0
 
 # Author: MegaV0lt
-#VERSION=241216
+#VERSION=250527
 
 # Aktivierung ab GenVDR V3:
 # echo /usr/local/sbin/check_setupconf.sh > /etc/vdr.d/8101_check_setupconf
 
 # set -x
+source /_config/bin/yavdr_funcs.sh &>/dev/null
 
 # --- Einstellungen ---
-SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"   # Eigener Pfad (besseres $0)
-SELF_NAME="${SELF##*/}"
+#SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"   # Eigener Pfad (besseres $0)
+#SELF_NAME="${SELF##*/}"
 SETUPCONF="$(readlink -m /etc/vdr/setup.conf)"    # VDR's setup.conf
 SYSLOG='/var/log/syslog'                          # Syslog, wo nach den Meldungen gesucht wird
 WAITTIME=10                                       # Wartezeit, bis VDR gestartet ist
@@ -24,17 +25,17 @@ declare -a TMP_RESULT                             # Zwischenspeicher für gefund
 declare -a TMP_SETUPCONF                          # Zwischenspeicher für setup.conf
 
 # Optionale Einstellungen
-LOG="/var/log/${SELF_NAME%.*}.log"                # Logs sammlen
+LOG_FILE="/var/log/${SELF_NAME%.*}.log"                # Logs sammlen
 
 # --- Funktionen ---
-f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
-  logger -t "${SELF_NAME%.*}" "$*"
-  [[ -t 1 ]] && echo "$*"
-  if [[ -n "$LOG" ]] ; then
-    [[ ! -e "$LOG" ]] && : >> "$LOG"
-    [[ -w "$LOG" ]] && echo "$(date +"%F %T") => $*" >> "$LOG"  # Zusätzlich in Datei schreiben
-  fi
-}
+#f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
+#  logger -t "${SELF_NAME%.*}" "$*"
+#  [[ -t 1 ]] && echo "$*"
+#  if [[ -n "$LOG" ]] ; then
+#    [[ ! -e "$LOG" ]] && : >> "$LOG"
+#    [[ -w "$LOG" ]] && echo "$(date +"%F %T") => $*" >> "$LOG"  # Zusätzlich in Datei schreiben
+#  fi
+#}
 
 # --- Start ---
 [[ "$1" == '--background' ]] && MAINSCRIPT=false
@@ -91,6 +92,8 @@ else
     [[ -n "${TMP_RESULT[*]}" ]] && printf '%s\n' "${TMP_RESULT[@]}" | sort -u > "$FOUND_ERRORS"
   fi
 fi
+
+f_rotate_log "$LOG_FILE"  # Log rotieren, wenn zu groß
 
 f_log "Skriptende! (PID: $$)"
 
