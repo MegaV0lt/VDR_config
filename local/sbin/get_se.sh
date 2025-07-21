@@ -37,8 +37,9 @@
 # %epgsearchdir%   - epgsearchs Verzeichnis für Konfiguratzionsdateien (z.B. /etc/vdr/plugins/epgsearch)
 
 # Aufruf in epgsearchuservars.conf:
-#%Get_SE%=system(/usr/local/sbin/get_se.sh, %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_lng% %Nummer der Staffel% %Nummer der Episode%)
-#                                            0       1          2         3         4       5         6          7 (TVScraper)        8 (TVScraper)
+#%Get_SE%=system(/usr/local/sbin/get_se.sh,
+# %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_lng% %Nummer der Staffel% %Nummer der Episode% %Name in externer Datenbank% %Name der Episode%)
+#  0       1          2         3         4       5         6          7 (TVScraper)        8 (TVScraper)        9                            10
 
 #SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
 #SELF_NAME="${SELF##*/}"                          # skript.sh
@@ -57,6 +58,21 @@ f_shorten_subtitle() {  # Kürzt den Kurztext auf 75 Zeichen
 }
 
 ### Start
+
+# Titel von TVScraper verwenden
+if [[ -n "${DATA[9]}" ]] ; then  # Name in externer Datenbank
+  if [[ "${TITLE}" =~ ${DATA[9]} ]] ; then
+    TITLE="${DATA[9]}"             # Titel der Sendung
+  fi
+fi
+
+# Kurztext von TVScraper verwenden  # TODO
+if [[ -n "${SUBTITLE}" && -n "${DATA[10]}" ]] ; then  # Name der Episode
+  # Nur wenn in SUBTITLE enthalten
+  if [[ "${SUBTITLE}" =~ ${DATA[10]} ]] ; then
+    SUBTITLE_TVS="${DATA[10]}"       # Kurztext der Sendung
+  fi
+fi
 
 # Zeichen ersetzen, damit Aufnahmen nicht in unterschiedlichen Ordnern landen
 case "${DATA[0]}" in
@@ -81,8 +97,8 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   if [[ "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält Sxx Exx
     printf -v S '%02d' "${BASH_REMATCH[2]#0}"  # 01
     printf -v E '%02d' "${BASH_REMATCH[3]#0}"  # 08
-    SUBTITLE="${BASH_REMATCH[1]}"  # Das Treffen
-    SUBTITLE="${SUBTITLE%% }"      # Leerzeichen am Ende entfernen
+    : "${BASH_REMATCH[1]}"  # Das Treffen
+    SUBTITLE="${_%% }"      # Leerzeichen am Ende entfernen
   fi
 
   # EPG Beispiel 3+:
