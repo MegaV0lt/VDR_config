@@ -37,8 +37,8 @@
 # %epgsearchdir%   - epgsearchs Verzeichnis für Konfiguratzionsdateien (z.B. /etc/vdr/plugins/epgsearch)
 
 # Aufruf in epgsearchuservars.conf:
-#%Get_SE%=system(/usr/local/sbin/get_se.sh, %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_lng% %Name der Staffel% %Name der Episode%)
-#                                            0       1          2         3         4       5         6          7 (TVScraper)      8 (TVScraper)
+#%Get_SE%=system(/usr/local/sbin/get_se.sh, %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_lng% %Nummer der Staffel% %Nummer der Episode%)
+#                                            0       1          2         3         4       5         6          7 (TVScraper)        8 (TVScraper)
 
 #SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
 #SELF_NAME="${SELF##*/}"                          # skript.sh
@@ -47,15 +47,23 @@ TITLE="${DATA[0]}"                                # Titel der Sendung
 SUBTITLE="${DATA[1]}"                             # Kurztext
 #DEBUG='true'                                     # Debug via logger
 
+### Funktionen
+f_shorten_subtitle() {  # Kürzt den Kurztext auf 75 Zeichen
+  local length=75
+  if [[ "${#SUBTITLE}" -ge $length ]] ; then
+      : "${SUBTITLE:0:length}"
+      SUBTITLE="${_%%' '}…"  # Kürzen und Leerzeichen am Ende entfernen
+  fi
+}
+
 ### Start
 
-#* Ersetzt durch Verwendung von SHORTNAME bei Serientitel (epgsearch)
 # Zeichen ersetzen, damit Aufnahmen nicht in unterschiedlichen Ordnern landen
-#case "${DATA[0]}" in
-#  *' - '*) DATA[0]="${DATA[0]//' - '/' – '}" ;;  # Kurzen durch langen Bindestrich (La_Zona_–_Do_not_cross)
-#  *"’"*)   DATA[0]="${DATA[0]//"’"/'\''}"    ;;  # Schräges ’ durch gerades ' (Marvel’s_Runaways)
-#  *) ;;
-#esac
+case "${DATA[0]}" in
+  *' - '*) DATA[0]="${DATA[0]//' - '/' – '}" ;;  # Kurzen durch langen Bindestrich (La_Zona_–_Do_not_cross)
+  *"’"*)   DATA[0]="${DATA[0]//’/\'}"    ;;      # Schräges ’ durch gerades ' (Marvel’s_Runaways)
+  *) ;;
+esac  # Ende Zeichenersetzung
 
 # Titel mit (*) am Ende?
 re='\(.*\)$'
@@ -64,23 +72,25 @@ if [[ "$TITLE" =~ $re ]] ; then     #* Titel enthält Klammern am Ende!
   : "${TITLE%"${FOUND_BRACE}"}" ; TITLE="${_%%' '}"  # Klammern (und Leerzeichen) entfernen
 fi
 
+f_shorten_subtitle  # Kurztext kürzen, falls zu lang ist
+
 if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
   # EPG Beispiel Canal+ First:
   # Woke~Das Treffen S01 E08. Monate später glaubt Keef, dass er endlich an einem besseren Ort angekommen...
   re='(.*)S([0-9]+) E([0-9]+)' #(. [a-z]*)'
   if [[ "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält Sxx Exx
-    printf -v S '%02d' "${BASH_REMATCH[2]}"  # 01
-    printf -v E '%02d' "${BASH_REMATCH[3]}"  # 08
+    printf -v S '%02d' "${BASH_REMATCH[2]#0}"  # 01
+    printf -v E '%02d' "${BASH_REMATCH[3]#0}"  # 08
     SUBTITLE="${BASH_REMATCH[1]}"  # Das Treffen
-    SUBTITLE="${SUBTITLE%%' '}"    # Leerzeichen am Ende entfernen
+    SUBTITLE="${SUBTITLE%% }"      # Leerzeichen am Ende entfernen
   fi
 
   # EPG Beispiel 3+:
   # Superstar~Staffel 01 - Folge 03: Highlights (1) / Castingshow, Schweiz 2006
   re='Staffel ([0-9]+).*Folge ([0-9]+)(.*)'
   if [[ -z "$S" && "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält Sxx Exx
-    printf -v S '%02d' "${BASH_REMATCH[1]}"  # 01
-    printf -v E '%02d' "${BASH_REMATCH[2]}"  # 03
+    printf -v S '%02d' "${BASH_REMATCH[1]#0}"  # 01 # Führende Null entfernen
+    printf -v E '%02d' "${BASH_REMATCH[2]#0}"  # 03
     SUBTITLE="${BASH_REMATCH[3]}"  # : Highlights (1) / Castingshow, Schweiz 2006
     re='^[:/ ]'
     while [[ "$SUBTITLE" =~ $re ]] ; do  # Alle führenden Leerzeichen, '/' oder ':' entfernen
@@ -91,14 +101,14 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   # Wenn in der Beschreibung 'Staffel, Folge' entahlen ist, diese verwenden
   #re='([0-9]+).*Staffel, Folge ([0-9]+)'
   #if [[ -z "$S" && "${DATA[5]:0:25}" =~ $re ]] ; then  #* Beschreibung enthält x. Staffel, Folge x:
-  #  printf -v S '%02d' "${BASH_REMATCH[1]}"  # 01
-  #  printf -v E '%02d' "${BASH_REMATCH[2]}"  # 08
+  #  printf -v S '%02d' "${BASH_REMATCH[1]#0}"  # 01
+  #  printf -v E '%02d' "${BASH_REMATCH[2]#0}"  # 08
   #fi
 
   # TVScraper Daten vorhanden?
   if [[ -z "$S" && -n "${DATA[7]}" ]] ; then
-    printf -v S '%02d' "${DATA[7]}"  # 01
-    printf -v E '%02d' "${DATA[8]}"  # 03
+    printf -v S '%02d' "${DATA[7]#0}"  # 01
+    printf -v E '%02d' "${DATA[8]#0}"  # 03
   fi
 
   if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017-03-07_13|00-Di.
