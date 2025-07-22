@@ -51,6 +51,11 @@ LC_ALL=C                                          # Locale auf C setzen für sch
 
 ### Start
 
+# Kurztext ist leer?
+if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017-03-07_13|00-Di.
+  printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # Sendezeit, falls Leer
+fi
+
 # Staffel- und Episoden-Nummer ermitteln
 if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
   # EPG Beispiel Canal+ First:
@@ -94,15 +99,10 @@ fi
 # Erstellen von (SxxExx)
 [[ -n "$S" && -n "$E" ]] && SE="(S${S}E${E})"
 
-# Kurztext ist leer?
-if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017-03-07_13|00-Di.
-  printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # Sendezeit, falls Leer
-fi
-
 # Kurztext kürzen, falls zu lang ist
 if [[ "${#SUBTITLE}" -ge 60 ]] ; then
     : "${SUBTITLE:0:60}"
-    SUBTITLE="${_%%' '}…"  # Kürzen und Leerzeichen am Ende entfernen
+    SUBTITLE="${_%%' '}…"  # Leerzeichen am Ende entfernen und … anhängen
 fi
 
 # Titel mit (*) am Ende?
@@ -114,25 +114,21 @@ fi
 
 #Titel von TVScraper verwenden
 if [[ -n "${TITLE}" && -n "${DATA[9]}" ]] ; then  # Name in externer Datenbank
-  # Nur wenn in TITLE enthalten
-  if [[ "${TITLE}" =~ ${DATA[9]} ]] ; then
-    TITLE="${DATA[9]}"       # Titel der Sendung
+  if [[ "${TITLE}" =~ ${DATA[9]} ]] ; then        # Nur wenn in TITLE enthalten
+    TITLE="${DATA[9]}"
   fi
 fi
 
 # Zeichen ersetzen, damit Aufnahmen nicht in unterschiedlichen Ordnern landen
 case "${TITLE}" in
-  *' - '*) TITLE="${TITLE//' - '/' – '}" ;;  # Kurzen durch langen Bindestrich (La_Zona_–_Do_not_cross)
+  *' - '*) TITLE="${TITLE//' - '/' – '}" ;;  # Kurzen durch langen Bindestrich (La_Zona_-_Do_not_cross)
   *"’"*)   TITLE="${TITLE//’/\'}"    ;;      # Schräges ’ durch gerades ' (Marvel’s_Runaways)
   *) ;;
 esac  # Ende Zeichenersetzung
 
 # Kurztext von TVScraper verwenden
-if [[ -n "${SUBTITLE}" && -n "${DATA[10]}" ]] ; then  # Name der Episode
-  # Nur wenn in SUBTITLE enthalten
-  if [[ "${SUBTITLE}" =~ ${DATA[10]} ]] ; then
-    SUBTITLE="${DATA[10]}"       # Kurztext der Sendung
-  fi
+if [[ -n "${DATA[10]}" && "${SUBTITLE}" =~ ${DATA[10]} ]] ; then  # Nur wenn in SUBTITLE enthalten
+  SUBTITLE="${DATA[10]}"
 fi
 
 # Gefundene Klammern im Titel an Kurztext anhängen (5/6)
@@ -153,8 +149,8 @@ fi
 #  fi
 #fi
 
-#! -> Das Skript muss eine Zeichenkette <ohne> Zeilenumbruch zurück geben!
 # echo "=> Antwort: ${TITLE}~${SUBTITLE}" >> "$LOG_FILE"
+#! -> Das Skript muss eine Zeichenkette <ohne> Zeilenumbruch zurück geben!
 printf '%s~%s' "${TITLE}" "${SUBTITLE}"  # Ausgabe an epgSearch
 
 exit  # Ende
