@@ -2,12 +2,12 @@
 
 # get_SE.sh
 #
-# Hilfsskript, das von epgSearch aufgerufen wird und versucht aus der Beschreibung
-# die Werte für Staffel und Episode zu extrahieren (SxxExx)
+# Hilfsskript, das von epgSearch aufgerufen wird und versucht aus dem Kurztext oder 
+# der Beschreibung die Nummern für Staffel und Episode zu extrahieren (SxxExx)
 #
 # Zusätzlich werden im Titel enthaltene Klammern am Ende in den Kurztext verschoben:
 # 'Serienname (5/6)~Folgenname' -> 'Serienname~Folgenname (5/6)'
-#VERSION=240724
+#VERSION=250723
 
 # Folgende Variablen sind bereits intern definiert und können verwendet werden.
 # %title%          - Title der Sendung
@@ -51,7 +51,7 @@ LC_ALL=C                                          # Locale auf C setzen für sch
 
 ### Start
 
-# Kurztext ist leer?
+# Falls Kurztext leer ist, Datum/Zeit verwenden
 if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017-03-07_13|00-Di.
   printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # Sendezeit, falls Leer
 fi
@@ -89,15 +89,12 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   #  printf -v E '%02d' "${BASH_REMATCH[2]#0}"  # 08
   #fi
 
-  # TVScraper Daten vorhanden?
+  # TVScraper Daten verwenden, falls vorhanden
   if [[ -z "$S" && -n "${DATA[7]}" ]] ; then
     printf -v S '%02d' "${DATA[7]#0}"  # 01
     printf -v E '%02d' "${DATA[8]#0}"  # 03
   fi
 fi
-
-# Erstellen von (SxxExx)
-[[ -n "$S" && -n "$E" ]] && SE="(S${S}E${E})"
 
 # Kurztext kürzen, falls zu lang ist
 if [[ "${#SUBTITLE}" -ge 60 ]] ; then
@@ -112,19 +109,14 @@ if [[ "$TITLE" =~ $re ]] ; then     #* Titel enthält Klammern am Ende!
   : "${TITLE%"${FOUND_BRACE}"}" ; TITLE="${_%%' '}"  # Klammern (und Leerzeichen) entfernen
 fi
 
-#Titel von TVScraper verwenden
-if [[ -n "${TITLE}" && -n "${DATA[9]}" ]] ; then  # Name in externer Datenbank
-  if [[ "${TITLE}" =~ ${DATA[9]} ]] ; then        # Nur wenn in TITLE enthalten
-    TITLE="${DATA[9]}"
-  fi
+# Titel von TVScraper verwenden wenn im Original Titel enthalten
+if [[ -n "${TITLE}" && -n "${DATA[9]}" ]] ; then  # Titel und Name in externer Datenbank
+  [[ "${TITLE}" =~ ${DATA[9]} ]] && TITLE="${DATA[9]}"
 fi
 
 # Zeichen ersetzen, damit Aufnahmen nicht in unterschiedlichen Ordnern landen
-case "${TITLE}" in
-  *' - '*) TITLE="${TITLE//' - '/' – '}" ;;  # Kurzen durch langen Bindestrich (La_Zona_-_Do_not_cross)
-  *"’"*)   TITLE="${TITLE//’/\'}"    ;;      # Schräges ’ durch gerades ' (Marvel’s_Runaways)
-  *) ;;
-esac  # Ende Zeichenersetzung
+TITLE="${TITLE// - / – }"  # Kurzen durch langen Bindestrich (La_Zona_-_Do_not_cross)
+TITLE="${TITLE//’/\'}"     # Schräges ’ durch gerades ' (Marvel’s_Runaways)
 
 # Kurztext von TVScraper verwenden
 if [[ -n "${DATA[10]}" && "${SUBTITLE}" =~ ${DATA[10]} ]] ; then  # Nur wenn in SUBTITLE enthalten
@@ -133,6 +125,9 @@ fi
 
 # Gefundene Klammern im Titel an Kurztext anhängen (5/6)
 [[ -n "$FOUND_BRACE" ]] && SUBTITLE+=" $FOUND_BRACE"
+
+# Erstellen von (SxxExx)
+[[ -n "$S" && -n "$E" ]] && SE="(S${S}E${E})"
 
 # SxxExx an Kurztext anhängen
 [[ -n "$SE" && "${#SE}" -ge 8 ]] && SUBTITLE+="  $SE"
