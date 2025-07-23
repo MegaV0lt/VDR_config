@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# eplists_check.sh - nach fehlenden Serienangeben von eplists suchen  (SxxExx)
+# eplists_check.sh - nach fehlenden Seriennummerierungen suchen  (SxxExx)
 # Author MegaV0lt
-VERSION=240217
+VERSION=250723
 
 # --- Variablen ---
 SELF="$(readlink /proc/$$/fd/255)"      # Eigener Pfad (besseres $0)
@@ -16,6 +16,7 @@ MAX_LOG_SIZE=$((1024*50))                # Log-Datei: Maximale größe in Byte
 declare -a NF_TIMER TVSCRAPER_TIMER     # Array's
 printf -v NOW '%(%s)T' -1               # Jetzt in Sekunden
 MAX_DATE=$((NOW + 60*60*24*10))         # Maximale Timer in der Zukunft (10 Tage)
+LC_ALL=C                                # Locale auf C setzen für schnelles Sortieren
 
 # --- Funktionen ---
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
@@ -67,11 +68,11 @@ if [[ -n "${NF_TIMER[*]}" || -n "${TVSCRAPER_TIMER[*]}" ]] ; then
   { echo "From: \"${HOSTNAME^^}\"<${MAIL_ADRESS}>"
     echo "To: $MAIL_ADRESS"
     echo 'Content-Type: text/plain; charset=UTF-8'
-    echo "Subject: eplist-Eintrag nicht gefunden (${#NF_TIMER[@]}/${#TVSCRAPER_TIMER[@]})"
+    echo "Subject: Fehlende Seriennummerierungen (${#NF_TIMER[@]}/${#TVSCRAPER_TIMER[@]})"
     echo -e "\n${SELF_NAME} #${VERSION}"
 
     # Aktive Timer ohne (SxxExx)
-    echo -e "\n==> Timer (VDR) mit fehlenden eplists-Angaben (${#NF_TIMER[@]}):"
+    echo -e "\n==> Timer (VDR) mit fehlenden (SxxExx) (${#NF_TIMER[@]}):"
     printf '%s\n' "${NF_TIMER[@]}" | sort -u  # Sortieren und duplikate entfenen
 
     # Timer von TVScraper
