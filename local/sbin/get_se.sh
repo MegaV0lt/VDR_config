@@ -124,25 +124,22 @@ if [[ -n "${DATA[10]}" && "${SUBTITLE}" =~ ${DATA[10]} ]] ; then  # Nur wenn in 
 fi
 
 # Gefundene Klammern im Titel an Kurztext anhängen (5/6)
-[[ -n "$FOUND_BRACE" ]] && SUBTITLE+=" $FOUND_BRACE"
+if [[ -n "$FOUND_BRACE" ]] ; then
+  re='(\(S[0-9]+E[0-9]+\).*)'    # (S01E01)
+  if [[ "$SUBTITLE" =~ $re ]] ; then
+    se="${BASH_REMATCH[1]}"
+    : "${SUBTITLE%  "${se}"}"    # SxxExx entfernen
+    SUBTITLE="$_ ${FOUND_BRACE}  ${se}"
+  else
+    SUBTITLE+=" ${FOUND_BRACE}"  # Klammern am Ende anhängen
+  fi
+fi
 
 # Erstellen von (SxxExx)
 [[ -n "$S" && -n "$E" ]] && SE="(S${S}E${E})"
 
 # SxxExx an Kurztext anhängen
 [[ -n "$SE" && "${#SE}" -ge 8 ]] && SUBTITLE+="  $SE"
-
-# Gefundene Klammern im Titel an Kurztext anhängen
-#if [[ -n "$FOUND_BRACE" ]] ; then
-#  re='(\(S[0-9]+E[0-9]+\).*)'   # (S01E01)
-#  re2='(\[S[0-9]+E[0-9]+\].*)'  # [S01E01]
-#  [[ "$SUBTITLE" =~ $re ]] && { SE="${BASH_REMATCH[1]}" ;}
-#  [[ "$SUBTITLE" =~ $re2 ]] && { SE2="${BASH_REMATCH[1]}" ;}
-#  if [[ -n "$SE" || -n "$SE2" ]] ; then
-#    : "${SUBTITLE%  "${SE:-$SE2}"}"
-#    SUBTITLE+=" ${FOUND_BRACE}  ${SE2:-$SE2}"
-#  fi
-#fi
 
 # echo "=> Antwort: ${TITLE}~${SUBTITLE}" >> "$LOG_FILE"
 #! -> Das Skript muss eine Zeichenkette <ohne> Zeilenumbruch zurück geben!
