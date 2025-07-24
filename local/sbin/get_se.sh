@@ -2,12 +2,12 @@
 
 # get_SE.sh
 #
-# Hilfsskript, das von epgSearch aufgerufen wird und versucht aus dem Kurztext oder 
+# Hilfsskript, das von epgSearch aufgerufen wird und versucht aus dem Kurztext oder
 # der Beschreibung die Nummern für Staffel und Episode zu extrahieren (SxxExx)
 #
 # Zusätzlich werden im Titel enthaltene Klammern am Ende in den Kurztext verschoben:
 # 'Serienname (5/6)~Folgenname' -> 'Serienname~Folgenname (5/6)'
-#VERSION=250723
+#VERSION=250724
 
 # Folgende Variablen sind bereits intern definiert und können verwendet werden.
 # %title%          - Title der Sendung
@@ -47,7 +47,6 @@ DATA=("$@")                                       # Übergebene Daten in ein Arr
 TITLE="${DATA[0]}"                                # Titel der Sendung
 SUBTITLE="${DATA[1]}"                             # Kurztext
 #DEBUG='true'                                     # Debug via logger
-LC_ALL=C                                          # Locale auf C setzen für schnelles Sortieren
 
 ### Start
 
@@ -55,6 +54,8 @@ LC_ALL=C                                          # Locale auf C setzen für sch
 if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017-03-07_13|00-Di.
   printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # Sendezeit, falls Leer
 fi
+
+LC_ALL=C                                          # Locale auf C setzen für schnelles Sortieren
 
 # Staffel- und Episoden-Nummer ermitteln
 if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
