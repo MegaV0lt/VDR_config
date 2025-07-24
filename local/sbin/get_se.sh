@@ -112,15 +112,16 @@ fi
 
 # Titel von TVScraper verwenden wenn im Original Titel enthalten
 if [[ -n "${TITLE}" && -n "${DATA[9]}" ]] ; then  # Titel und Name in externer Datenbank
-  [[ "${TITLE}" =~ ${DATA[9]} ]] && TITLE="${DATA[9]}"
+  # Vergleich in Kleinbuchstaben (Kommissar Van der Valk vs. Kommissar van der Valk)
+  [[ "${TITLE,,}" =~ ${DATA[9],,} ]] && TITLE="${DATA[9]}"
 fi
 
 # Zeichen ersetzen, damit Aufnahmen nicht in unterschiedlichen Ordnern landen
 TITLE="${TITLE// - / – }"  # Kurzen durch langen Bindestrich (La_Zona_-_Do_not_cross)
 TITLE="${TITLE//’/\'}"     # Schräges ’ durch gerades ' (Marvel’s_Runaways)
 
-# Kurztext von TVScraper verwenden
-if [[ -n "${DATA[10]}" && "${SUBTITLE}" =~ ${DATA[10]} ]] ; then  # Nur wenn in SUBTITLE enthalten
+# Kurztext von TVScraper verwenden (Vergleich in Kleinbuchstaben)
+if [[ -n "${DATA[10]}" && "${SUBTITLE,,}" =~ ${DATA[10],,} ]] ; then  # Nur wenn in SUBTITLE enthalten
   SUBTITLE="${DATA[10]}"
 fi
 
