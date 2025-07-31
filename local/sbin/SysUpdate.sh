@@ -25,7 +25,7 @@ if [[ -e /_config/.git ]] ; then
   echo -e '\n--> Aktualisiere /_config…'
   if ! "$SUDO" git pull ; then
     echo -e "\n$msgERR /_config konnte nicht aktualisiert werden"
-    sleep 10
+    #echo -e -n '\nTaste drücken oder 10 Sekunden warten…' ; read -t 10
   fi
   echo -e '\n--> Überprüfe/Erzeuge Symlinks und Berechtigungen…'
   "$SUDO" ./createlinks.sh
