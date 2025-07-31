@@ -50,12 +50,17 @@ SUBTITLE="${DATA[1]}"                             # Kurztext
 
 ### Start
 
-# Falls Kurztext leer ist, Datum/Zeit verwenden
-if [[ -z "$SUBTITLE" ]] ; then  # VDR: Leschs Kosmos~2017-03-07_13|00-Di.
-  printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # Sendezeit, falls Leer
-fi
+_LC_ALL="$LC_ALL"  # Aktuelle Locale sichern
+LC_ALL=C           # Locale auf C setzen für schnelles Sortieren und RegEx
 
-LC_ALL=C                                          # Locale auf C setzen für schnelles Sortieren
+# Falls Kurztext leer ist, Episode oder Datum/Zeit verwenden
+if [[ -z "$SUBTITLE" ]] ; then
+  if [[ -n "${DATA[3]}" && "${DATA[3]}" =~ [A-Za-z]* ]] ; then
+    SUBTITLE="${DATA[3]}"  # Episode enthält Buchstaben (TVSP schreibt Episodennamen in die Beschreibung)
+  else
+    LC_ALL=_LC_ALL printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # 2017-03-07_13|00-Di.
+  fi
+fi
 
 # Staffel- und Episoden-Nummer ermitteln
 if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
