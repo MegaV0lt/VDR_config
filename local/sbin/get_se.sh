@@ -50,15 +50,15 @@ SUBTITLE="${DATA[1]}"                             # Kurztext
 
 ### Start
 
-_LC_ALL="$LC_ALL"  # Aktuelle Locale sichern
-LC_ALL=C           # Locale auf C setzen für schnelles Sortieren und RegEx
+_LC_ALL="${LC_ALL:-${LANG}}"  # Aktuelle Locale sichern
+LC_ALL=C                      # Locale auf C setzen für schnelles Sortieren und RegEx
 
 # Falls Kurztext leer ist, Episode oder Datum/Zeit verwenden
 if [[ -z "$SUBTITLE" ]] ; then
   if [[ -n "${DATA[3]}" && "${DATA[3]}" =~ [A-Za-z]* ]] ; then
     SUBTITLE="${DATA[3]}"  # Episode enthält Buchstaben (TVSP schreibt Episodennamen in die Beschreibung)
   else
-    LC_ALL=_LC_ALL printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # 2017-03-07_13|00-Di.
+    LC_ALL="$_LC_ALL" printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # 2017-03-07_13|00-Di.
   fi
 fi
 
