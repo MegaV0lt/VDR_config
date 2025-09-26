@@ -31,4 +31,16 @@ if [[ -e /_config/.git ]] ; then
   "$SUDO" ./createlinks.sh
 fi
 
+# Wakeupskript
+if [[ -e /usr/share/vdr/shutdown-hooks/S90.acpiwakeup ]] ; then
+  echo -e '\n--> Aktualisiere Wakeupskript…'
+  if ! "$SUDO" rm -f /usr/share/vdr/shutdown-hooks/S90.acpiwakeup ; then
+    echo -e "\n$msgERR Altes Wakeupskript konnte nicht entfernt werden"
+  fi
+  
+  if ! "$SUDO" cp -f /home/darkwing/src/S90.acpiwakeup /usr/share/vdr/shutdown-hooks/S91.acpiwakeup-mv ; then
+    echo -e "\n$msgERR Neues Wakeupskript konnte nicht aktualisiert werden"
+  fi
+fi
+
 exit
