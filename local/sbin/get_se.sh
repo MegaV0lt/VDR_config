@@ -53,6 +53,13 @@ SUBTITLE="${DATA[1]}"                             # Kurztext
 _LC_ALL="${LC_ALL:-${LANG}}"  # Aktuelle Locale sichern
 LC_ALL=C                      # Locale auf C setzen für schnelles Sortieren und RegEx
 
+# Entfernen von (WH vom ...) aus dem Kurztext
+re='(.*)( \(WH vom .*\))'
+if [[ "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält (WH vom ...)
+  SUBTITLE="${BASH_REMATCH[1]}"     # Wert speichern
+  SUBTITLE="${SUBTITLE%%' '}"       # Leerzeichen am Ende entfernen
+fi
+
 # Falls Kurztext leer ist, Episode oder Datum/Zeit verwenden
 if [[ -z "$SUBTITLE" ]] ; then
   if [[ -n "${DATA[3]}" && "${DATA[3]}" =~ [A-Za-z]* ]] ; then
