@@ -76,7 +76,8 @@ fi
 # Staffel- und Episoden-Nummer ermitteln
 if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
   if [[ -n "$DEBUG_SE" ]] ; then
-    logger -t "get_se.sh" "Trying to get missing Season/Episode from Subtitle: TITLE=${TITLE:-''} SUBTITLE=${SUBTITLE:-''}"
+    STARTTIME="$(LC_ALL="$_LC_ALL" printf '%(%Y-%m-%d %H:%M)T' "${DATA[6]}")"  # 2017-03-07 13:00
+    logger -t "get_se.sh" "Trying to get missing Season/Episode from Subtitle: TITLE=${TITLE:-''} SUBTITLE=${SUBTITLE:-''} TIME=${STARTTIME}"
   fi
 
   # EPG Beispiel Canal+ First:
@@ -113,15 +114,15 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   # TVScraper Daten verwenden, falls vorhanden
   if [[ -z "$S" && -n "${DATA[7]}" ]] ; then
     if [[ -n "$DEBUG_SE" ]] ; then
-      logger -t "get_se.sh" "Trying to get missing Season/Episode from TVScraper: S=${DATA[7]:-''} E=${DATA[8]:-''}"
+      logger -t "get_se.sh" "Season/Episode from TVScraper: S=${DATA[7]:-''} E=${DATA[8]:-''}"
     fi
     printf -v S '%02d' "${DATA[7]#0}"  # 01
     printf -v E '%02d' "${DATA[8]#0}"  # 03
   fi
 
-  if [[ -n "$DEBUG_SE" ]] ; then
-    logger -t "get_se.sh" "Got Season/Episode: S=${S:-''} E=${E:-''}"
-  fi
+  # if [[ -n "$DEBUG_SE" ]] ; then
+  #  logger -t "get_se.sh" "Got Season/Episode: S=${S:-''} E=${E:-''}"
+  # fi
 fi
 
 # Kurztext kürzen, falls zu lang ist
