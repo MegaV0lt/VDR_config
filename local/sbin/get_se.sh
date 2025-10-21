@@ -41,6 +41,10 @@
 # %Title% %Subtitle% %Staffel% %Episode% %Folge% %Summary% %time_lng% %Nummer der Staffel% %Nummer der Episode% %Name in externer Datenbank% %Name der Episode%)
 #  0       1          2         3         4       5         6          7 (TVScraper)        8 (TVScraper)        9                            10
 
+# Konfiguration einbinden
+source /etc/get_se.conf 2>/dev/null
+
+# Variablen
 #SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
 #SELF_NAME="${SELF##*/}"                          # skript.sh
 DATA=("$@")                                       # Übergebene Daten in ein Array
@@ -71,6 +75,10 @@ fi
 
 # Staffel- und Episoden-Nummer ermitteln
 if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
+  if [[ -n "$DEBUG_SE" ]] ; then
+    logger -t "get_se.sh" "Trying to get missing Season/Episode from Subtitle: TITLE=${TITLE:-''} SUBTITLE=${SUBTITLE:-''}"
+  fi
+
   # EPG Beispiel Canal+ First:
   # Woke~Das Treffen S01 E08. Monate später glaubt Keef, dass er endlich an einem besseren Ort angekommen...
   re='(.*)S([0-9]+) E([0-9]+)' #(. [a-z]*)'
@@ -104,8 +112,15 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
 
   # TVScraper Daten verwenden, falls vorhanden
   if [[ -z "$S" && -n "${DATA[7]}" ]] ; then
+    if [[ -n "$DEBUG_SE" ]] ; then
+      logger -t "get_se.sh" "Trying to get missing Season/Episode from TVScraper: S=${DATA[7]:-''} E=${DATA[8]:-''}"
+    fi
     printf -v S '%02d' "${DATA[7]#0}"  # 01
     printf -v E '%02d' "${DATA[8]#0}"  # 03
+  fi
+
+  if [[ -n "$DEBUG_SE" ]] ; then
+    logger -t "get_se.sh" "Got Season/Episode: S=${S:-''} E=${E:-''}"
   fi
 fi
 
@@ -149,11 +164,9 @@ if [[ -n "$FOUND_BRACE" ]] ; then
   fi
 fi
 
-# Erstellen von (SxxExx)
-[[ -n "$S" && -n "$E" ]] && SE="(S${S}E${E})"
-
-# SxxExx an Kurztext anhängen
-[[ -n "$SE" && "${#SE}" -ge 8 ]] && SUBTITLE+="  $SE"
+# Erstellen von (SxxExx) und an Kurztext anhängen
+[[ -n "$S" && -n "$E" ]] && SUBTITLE+="  (S${S}E${E})"
+#logger -t "get_se.sh" "Final TITLE='${TITLE}' SUBTITLE='${SUBTITLE}'"
 
 # echo "=> Antwort: ${TITLE}~${SUBTITLE}" >> "$LOG_FILE"
 #! -> Das Skript muss eine Zeichenkette <ohne> Zeilenumbruch zurück geben!
