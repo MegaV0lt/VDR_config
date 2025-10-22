@@ -1,13 +1,26 @@
 #!/usr/bin/env bash
 
-# get_SE.sh
+# get_se.sh
 #
-# Hilfsskript, das von epgSearch aufgerufen wird und versucht aus dem Kurztext oder
-# der Beschreibung die Nummern für Staffel und Episode zu extrahieren (SxxExx)
+# Hilfsskript, das von EPGSearch aufgerufen wird und versucht aus dem Kurztext oder
+# der Beschreibung fehlende Nummern für Staffel und Episode zu extrahieren (SxxExx)
 #
-# Zusätzlich werden im Titel enthaltene Klammern am Ende in den Kurztext verschoben:
-# 'Serienname (5/6)~Folgenname' -> 'Serienname~Folgenname (5/6)'
-#VERSION=250724
+# Zusätzliche Anpassungen:
+# - Im Titel enthaltene Klammern an das Ende des Kurztextes verschieben:
+#   'Serienname (5/6)~Folgenname' -> 'Serienname~Folgenname (5/6)'
+# - Titel von TVScraper verwenden, falls dieser im Original-Titel enthalten ist
+# - Im Titel enthaltene kurze Bindestriche ' - ' durch lange Bindestriche ' – ' ersetzen
+# - Im Titel enthaltene schrägen Apostroph ’ durch geraden Apostroph ' ersetzen
+# - Kurztext mit Angaben wie Jahr oder (WH vom ...) durch Episodenname ersetzen, falls 
+#   dieser nicht leer und im Kurztext enthalten ist
+# - Leeren Kurztext durch Datum/Zeit oder Episodenname ersetzen, falls dieser nicht leer ist
+# - Kurztexte kürzen, falls diese zu lang sind (über 60 Zeichen)
+#
+# Zum aktivieren von Debug-Ausgaben in syslog, die Variable DEBUG_SE auf 'true' setzen
+# (z.B. in /etc/get_se.conf):
+# DEBUG_SE='true'
+#
+# VERSION=251022
 
 # Folgende Variablen sind bereits intern definiert und können verwendet werden.
 # %title%          - Title der Sendung
@@ -34,7 +47,7 @@
 # %timenow%        - Aktuelle Zeit im Format HH:MM
 # %videodir%       - VDRs Aufnahme-Verzeichnis (z.B. /video)
 # %plugconfdir%    - VDRs Verzeichnis für Plugin-Konfigurationsdateien (z.B. /etc/vdr/plugins)
-# %epgsearchdir%   - epgsearchs Verzeichnis für Konfiguratzionsdateien (z.B. /etc/vdr/plugins/epgsearch)
+# %epgsearchdir%   - EPGSearchs Verzeichnis für Konfiguratzionsdateien (z.B. /etc/vdr/plugins/epgsearch)
 
 # Aufruf in epgsearchuservars.conf:
 #%Get_SE%=system(/usr/local/sbin/get_se.sh,
@@ -174,6 +187,6 @@ fi
 
 # echo "=> Antwort: ${TITLE}~${SUBTITLE}" >> "$LOG_FILE"
 #! -> Das Skript muss eine Zeichenkette <ohne> Zeilenumbruch zurück geben!
-printf '%s~%s' "${TITLE}" "${SUBTITLE}"  # Ausgabe an epgSearch
+printf '%s~%s' "${TITLE}" "${SUBTITLE}"  # Ausgabe an EPGSearch
 
 exit  # Ende
