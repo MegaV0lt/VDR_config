@@ -50,12 +50,15 @@ source /etc/get_se.conf 2>/dev/null
 DATA=("$@")                                       # Übergebene Daten in ein Array
 TITLE="${DATA[0]}"                                # Titel der Sendung
 SUBTITLE="${DATA[1]}"                             # Kurztext
-#DEBUG='true'                                     # Debug via logger
+#DEBUG_SE='true'                                  # Debug via logger
+_LC_ALL="${LC_ALL:-${LANG}}"  # Aktuelle Locale sichern
+LC_ALL=C                      # Locale auf C setzen für schnelles Sortieren und RegEx
 
 ### Start
 
-_LC_ALL="${LC_ALL:-${LANG}}"  # Aktuelle Locale sichern
-LC_ALL=C                      # Locale auf C setzen für schnelles Sortieren und RegEx
+if [[ -n "$DEBUG_SE" && -z "${DATA[7]}" ]] ; then
+  logger -t "get_se.sh" "TITLE='${TITLE}' SUBTITLE='${SUBTITLE}' SEASON='${DATA[2]}' EPISODE='${DATA[3]}' TIME='${DATA[6]}' TVS_S='${DATA[7]}' TVS_E='${DATA[8]}'"
+fi
 
 # Falls Kurztext leer ist, Episode oder Datum/Zeit verwenden
 if [[ -z "$SUBTITLE" ]] ; then
