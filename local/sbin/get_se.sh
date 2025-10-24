@@ -70,7 +70,7 @@ LC_ALL=C                      # Locale auf C setzen für schnelles Sortieren und
 ### Start
 
 if [[ -n "$DEBUG_SE" && -z "${DATA[7]}" ]] ; then
-  logger -t "get_se.sh" "TITLE='${TITLE}' SUBTITLE='${SUBTITLE}' SEASON='${DATA[2]}' EPISODE='${DATA[3]}' TIME='${DATA[6]}' TVS_S='${DATA[7]}' TVS_E='${DATA[8]}'"
+  logger -t 'get_se.sh' "TITLE='${TITLE}' SUBTITLE='${SUBTITLE}' SEASON='${DATA[2]}' EPISODE='${DATA[3]}' TIME='${DATA[6]}' TVS_S='' TVS_E='${DATA[8]}'"
 fi
 
 # Falls Kurztext leer ist, Episode oder Datum/Zeit verwenden
@@ -81,19 +81,18 @@ if [[ -z "$SUBTITLE" ]] ; then
     LC_ALL="$_LC_ALL" printf -v SUBTITLE '%(%Y-%m-%d_%H|%M-%a.)T' "${DATA[6]}"  # 2017-03-07_13|00-Di.
   fi
 else  # Entfernen von (WH vom ...) aus dem Kurztext
-re='(.*)( \(WH vom .*\))'
-if [[ "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält (WH vom ...)
-  SUBTITLE="${BASH_REMATCH[1]}"     # Wert speichern
-  SUBTITLE="${SUBTITLE%%' '}"       # Leerzeichen am Ende entfernen
-fi
-
+  re='(.*)( \(WH vom .*\))'
+  if [[ "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält (WH vom ...)
+    SUBTITLE="${BASH_REMATCH[1]}"     # Wert speichern
+    SUBTITLE="${SUBTITLE%%' '}"       # Leerzeichen am Ende entfernen
+  fi
 fi
 
 # Staffel- und Episoden-Nummer ermitteln
 if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
   if [[ -n "$DEBUG_SE" ]] ; then
     STARTTIME="$(LC_ALL="$_LC_ALL" printf '%(%Y-%m-%d %H:%M)T' "${DATA[6]}")"  # 2017-03-07 13:00
-    logger -t "get_se.sh" "Trying to get missing Season/Episode from Subtitle: TITLE=${TITLE:-''} SUBTITLE=${SUBTITLE:-''} TIME=${STARTTIME}"
+    logger -t 'get_se.sh' "Trying to get missing Season/Episode from Subtitle: TITLE=${TITLE:-''} SUBTITLE=${SUBTITLE:-''} TIME=${STARTTIME}"
   fi
 
   # EPG Beispiel Canal+ First:
@@ -130,14 +129,14 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   # TVScraper Daten verwenden, falls vorhanden
   if [[ -z "$S" && -n "${DATA[7]}" ]] ; then
     if [[ -n "$DEBUG_SE" ]] ; then
-      logger -t "get_se.sh" "Season/Episode from TVScraper: S=${DATA[7]:-''} E=${DATA[8]:-''}"
+      logger -t 'get_se.sh' "Using Season/Episode from TVScraper: S=${DATA[7]:-''} E=${DATA[8]:-''}"
     fi
     printf -v S '%02d' "${DATA[7]#0}"  # 01
     printf -v E '%02d' "${DATA[8]#0}"  # 03
   fi
 
   # if [[ -n "$DEBUG_SE" ]] ; then
-  #  logger -t "get_se.sh" "Got Season/Episode: S=${S:-''} E=${E:-''}"
+  #  logger -t 'get_se.sh' "Got Season/Episode: S=${S:-''} E=${E:-''}"
   # fi
 fi
 
@@ -173,6 +172,7 @@ fi
 if [[ -n "$FOUND_BRACE" ]] ; then
   re='(\(S[0-9]+E[0-9]+\).*)'    # (S01E01)
   if [[ "$SUBTITLE" =~ $re ]] ; then
+    logger -t 'get_se.sh' "Klammern bereits im Kurztext vorhanden: ${TITLE}~${SUBTITLE}"
     se="${BASH_REMATCH[1]}"
     : "${SUBTITLE%  "${se}"}"    # SxxExx entfernen
     SUBTITLE="$_ ${FOUND_BRACE}  ${se}"
@@ -183,9 +183,8 @@ fi
 
 # Erstellen von (SxxExx) und an Kurztext anhängen
 [[ -n "$S" && -n "$E" ]] && SUBTITLE+="  (S${S}E${E})"
-#logger -t "get_se.sh" "Final TITLE='${TITLE}' SUBTITLE='${SUBTITLE}'"
 
-# echo "=> Antwort: ${TITLE}~${SUBTITLE}" >> "$LOG_FILE"
+# logger -t 'get_se.sh' "=> Antwort: ${TITLE}~${SUBTITLE}"
 #! -> Das Skript muss eine Zeichenkette <ohne> Zeilenumbruch zurück geben!
 printf '%s~%s' "${TITLE}" "${SUBTITLE}"  # Ausgabe an EPGSearch
 
