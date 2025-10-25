@@ -20,7 +20,7 @@
 # (z.B. in /etc/get_se.conf):
 # DEBUG_SE='true'
 #
-# VERSION=251022
+# VERSION=251025
 
 # Folgende Variablen sind bereits intern definiert und können verwendet werden.
 # %title%          - Title der Sendung
@@ -88,8 +88,8 @@ else  # Entfernen von (WH vom ...) aus dem Kurztext
   fi
 fi
 
-# Staffel- und Episoden-Nummer ermitteln
-if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
+# Staffel- und Episoden-Nummer ermitteln wenn nicht vorhanden
+if [[ -z "${DATA[7]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
   if [[ -n "$DEBUG_SE" ]] ; then
     STARTTIME="$(LC_ALL="$_LC_ALL" printf '%(%Y-%m-%d %H:%M)T' "${DATA[6]}")"  # 2017-03-07 13:00
     logger -t 'get_se.sh' "Trying to get missing Season/Episode from Subtitle: TITLE=${TITLE:-''} SUBTITLE=${SUBTITLE:-''} TIME=${STARTTIME}"
@@ -127,13 +127,13 @@ if [[ -z "${DATA[2]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   #fi
 
   # TVScraper Daten verwenden, falls vorhanden
-  if [[ -z "$S" && -n "${DATA[7]}" ]] ; then
-    if [[ -n "$DEBUG_SE" ]] ; then
-      logger -t 'get_se.sh' "Using Season/Episode from TVScraper: S=${DATA[7]:-''} E=${DATA[8]:-''}"
-    fi
-    printf -v S '%02d' "${DATA[7]#0}"  # 01
-    printf -v E '%02d' "${DATA[8]#0}"  # 03
-  fi
+  #if [[ -z "$S" && -n "${DATA[7]}" ]] ; then
+  #  if [[ -n "$DEBUG_SE" ]] ; then
+  #    logger -t 'get_se.sh' "Using Season/Episode from TVScraper: S=${DATA[7]:-''} E=${DATA[8]:-''}"
+  #  fi
+  #  printf -v S '%02d' "${DATA[7]#0}"  # 01
+  #  printf -v E '%02d' "${DATA[8]#0}"  # 03
+  #fi
 
   # if [[ -n "$DEBUG_SE" ]] ; then
   #  logger -t 'get_se.sh' "Got Season/Episode: S=${S:-''} E=${E:-''}"
@@ -181,8 +181,8 @@ if [[ -n "$FOUND_BRACE" ]] ; then
   fi
 fi
 
-# Erstellen von (SxxExx) und an Kurztext anhängen
-[[ -n "$S" && -n "$E" ]] && SUBTITLE+="  (S${S}E${E})"
+# Erstellen von [SxxExx] und an Kurztext anhängen
+[[ -n "$S" && -n "$E" ]] && SUBTITLE+="  [S${S}E${E}]"
 
 # logger -t 'get_se.sh' "=> Antwort: ${TITLE}~${SUBTITLE}"
 #! -> Das Skript muss eine Zeichenkette <ohne> Zeilenumbruch zurück geben!
