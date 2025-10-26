@@ -20,7 +20,7 @@
 # (z.B. in /etc/get_se.conf):
 # DEBUG_SE='true'
 #
-# VERSION=251025
+# VERSION=251026
 
 # Folgende Variablen sind bereits intern definiert und können verwendet werden.
 # %title%          - Title der Sendung
@@ -55,7 +55,7 @@
 #  0       1          2         3         4       5         6          7 (TVScraper)        8 (TVScraper)        9                            10
 
 # Konfiguration einbinden
-source /etc/get_se.conf 2>/dev/null
+#source /etc/get_se.conf 2>/dev/null
 
 # Variablen
 #SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
@@ -141,7 +141,7 @@ if [[ -z "${DATA[7]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
 fi
 
 # Kurztext kürzen, falls zu lang ist
-if [[ "${#SUBTITLE}" -ge 60 ]] ; then
+if [[ "${#SUBTITLE}" -gt 60 ]] ; then
     : "${SUBTITLE:0:60}"
     SUBTITLE="${_%%' '}…"  # Leerzeichen am Ende entfernen und … anhängen
 fi
@@ -150,7 +150,8 @@ fi
 re='\(.*\)$'
 if [[ "$TITLE" =~ $re ]] ; then     #* Titel enthält Klammern am Ende!
   FOUND_BRACE="${BASH_REMATCH[0]}"  # Wert speichern '(5/6)'
-  : "${TITLE%"${FOUND_BRACE}"}" ; TITLE="${_%%' '}"  # Klammern (und Leerzeichen) entfernen
+  : "${TITLE%"${FOUND_BRACE}"}"
+  TITLE="${_%%' '}"                 # Klammern (und Leerzeichen) entfernen
 fi
 
 # Titel von TVScraper verwenden wenn im Original Titel enthalten
