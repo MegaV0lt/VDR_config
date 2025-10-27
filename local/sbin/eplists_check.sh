@@ -2,7 +2,7 @@
 
 # eplists_check.sh - nach fehlenden Seriennummerierungen suchen  (SxxExx)
 # Author MegaV0lt
-VERSION=250723
+VERSION=251027
 
 # --- Variablen ---
 SELF="$(readlink /proc/$$/fd/255)"      # Eigener Pfad (besseres $0)
@@ -76,8 +76,10 @@ if [[ -n "${NF_TIMER[*]}" || -n "${TVSCRAPER_TIMER[*]}" ]] ; then
     printf '%s\n' "${NF_TIMER[@]}" | sort -u  # Sortieren und duplikate entfenen
 
     # Timer von TVScraper
-    echo -e "\n==> Von TVScraper angelegte Timer (${#TVSCRAPER_TIMER[@]}):"
-    printf '%s\n' "${TVSCRAPER_TIMER[@]}" | sort -u  # Sortieren und duplikate entfenen
+    if [[ -n "${TVSCRAPER_TIMER[*]}" ]] ; then
+      echo -e "\n==> Von TVScraper angelegte Timer (${#TVSCRAPER_TIMER[@]}):"
+      printf '%s\n' "${TVSCRAPER_TIMER[@]}" | sort -u  # Sortieren und duplikate entfenen
+    fi
 
     # Alle Timer
     echo -e "\n==> Aktive Timer ohne (SxxExx) (${#TIMERS[@]}):"
