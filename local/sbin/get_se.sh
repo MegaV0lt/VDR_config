@@ -11,7 +11,7 @@
 # - Titel von TVScraper verwenden, falls dieser im Original-Titel enthalten ist
 # - Im Titel enthaltene kurze Bindestriche ' - ' durch lange Bindestriche ' – ' ersetzen
 # - Im Titel enthaltene schrägen Apostroph ’ durch geraden Apostroph ' ersetzen
-# - Kurztext mit Angaben wie Jahr oder (WH vom ...) durch Episodenname ersetzen, falls 
+# - Kurztext mit Angaben wie Jahr oder (WH vom ...) durch Episodenname ersetzen, falls
 #   dieser nicht leer und im Kurztext enthalten ist
 # - Leeren Kurztext durch Datum/Zeit oder Episodenname ersetzen, falls dieser nicht leer ist
 # - Kurztexte kürzen, falls diese zu lang sind (über 60 Zeichen)
@@ -20,7 +20,7 @@
 # (z.B. in /etc/get_se.conf):
 # DEBUG_SE='true'
 #
-# VERSION=251026
+# VERSION=251028
 
 # Folgende Variablen sind bereits intern definiert und können verwendet werden.
 # %title%          - Title der Sendung
@@ -83,8 +83,8 @@ if [[ -z "$SUBTITLE" ]] ; then
 else  # Entfernen von (WH vom ...) aus dem Kurztext
   re='(.*)( \(WH vom .*\))'
   if [[ "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält (WH vom ...)
-    SUBTITLE="${BASH_REMATCH[1]}"     # Wert speichern
-    SUBTITLE="${SUBTITLE%%' '}"       # Leerzeichen am Ende entfernen
+    : "${BASH_REMATCH[1]}"            # Wert speichern
+    SUBTITLE="${_%%' '}"              # Leerzeichen am Ende entfernen
   fi
 fi
 
@@ -140,6 +140,11 @@ if [[ -z "${DATA[7]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   # fi
 fi
 
+# Kurztext von TVScraper verwenden (Vergleich in Kleinbuchstaben)
+if [[ -n "${DATA[10]}" && "${SUBTITLE,,}" =~ ${DATA[10],,} ]] ; then  # Nur wenn in SUBTITLE enthalten
+  SUBTITLE="${DATA[10]}"
+fi
+
 # Kurztext kürzen, falls zu lang ist
 if [[ "${#SUBTITLE}" -gt 60 ]] ; then
     : "${SUBTITLE:0:60}"
@@ -164,22 +169,17 @@ fi
 TITLE="${TITLE// - / – }"  # Kurzen durch langen Bindestrich (La_Zona_-_Do_not_cross)
 TITLE="${TITLE//’/\'}"     # Schräges ’ durch gerades ' (Marvel’s_Runaways)
 
-# Kurztext von TVScraper verwenden (Vergleich in Kleinbuchstaben)
-if [[ -n "${DATA[10]}" && "${SUBTITLE,,}" =~ ${DATA[10],,} ]] ; then  # Nur wenn in SUBTITLE enthalten
-  SUBTITLE="${DATA[10]}"
-fi
-
 # Gefundene Klammern im Titel an Kurztext anhängen (5/6)
 if [[ -n "$FOUND_BRACE" ]] ; then
-  re='(\(S[0-9]+E[0-9]+\).*)'    # (S01E01)
-  if [[ "$SUBTITLE" =~ $re ]] ; then
-    logger -t 'get_se.sh' "Klammern bereits im Kurztext vorhanden: ${TITLE}~${SUBTITLE}"
-    se="${BASH_REMATCH[1]}"
-    : "${SUBTITLE%  "${se}"}"    # SxxExx entfernen
-    SUBTITLE="$_ ${FOUND_BRACE}  ${se}"
-  else
+  #re='(\(S[0-9]+E[0-9]+\).*)'    # (S01E01)
+  #if [[ "$SUBTITLE" =~ $re ]] ; then
+  #  logger -t 'get_se.sh' "Klammern bereits im Kurztext vorhanden: ${TITLE}~${SUBTITLE}"
+  #  se="${BASH_REMATCH[1]}"
+  #  : "${SUBTITLE%  "${se}"}"    # SxxExx entfernen
+  #  SUBTITLE="$_ ${FOUND_BRACE}  ${se}"
+  #else
     SUBTITLE+=" ${FOUND_BRACE}"  # Klammern am Ende anhängen
-  fi
+  #fi
 fi
 
 # Erstellen von [SxxExx] und an Kurztext anhängen
