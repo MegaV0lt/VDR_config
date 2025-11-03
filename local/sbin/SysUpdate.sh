@@ -23,7 +23,8 @@ apt full-upgrade
 if [[ -e /_config/.git ]] ; then
   cd /_config || exit 1
   echo -e '\n--> Aktualisiere /_config…'
-  if ! git stash && ! git pull; then
+  git stash
+  if ! git pull; then
     echo -e "\n$msgERR /_config konnte nicht aktualisiert werden"
     #echo -e -n '\nTaste drücken oder 10 Sekunden warten…' ; read -t 10
   fi
