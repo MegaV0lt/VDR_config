@@ -67,7 +67,8 @@ for i in "${!MAIL_TEXT[@]}" ; do
     MAIL_TEXT[i]="$NEW_FROM"
     f_log "[i] Geändertes \"From:\" > ${MAIL_TEXT[i]}"
     continue
-  fi
+  fi  # From:
+
   if [[ "${MAIL_TEXT[i]}" =~ ^T[oO0]: ]] ; then  # To:, TO: oder T0:
     f_log "[i] Gefundenes \"To:\" > ${MAIL_TEXT[i]}"
     if [[ -n "$TO_FOUND" ]] ; then
@@ -81,7 +82,22 @@ for i in "${!MAIL_TEXT[@]}" ; do
       f_log "[i] Geändertes \"To:\" > ${MAIL_TEXT[i]}"
     fi
     continue
-  fi
+  fi  # To:
+
+  if [[ "${MAIL_TEXT[i]}" =~ ^Subject: ]] ; then
+    if [[ -z "${MAIL_TEXT[i]#Subject: }" ]] ; then
+      f_log "[w] Leerer 'Subject:' gefunden!"
+      MAIL_TEXT[i]="Subject: (no subject)"
+      f_log "[i] Geändertes \"Subject:\" > ${MAIL_TEXT[i]}"
+    elif [[ "${#MAIL_TEXT[i]}" -gt 70 ]] ; then
+      f_log "[w] 'Subject:' zu lang (${#MAIL_TEXT[i]} Zeichen)!"
+      MAIL_TEXT[i]="${MAIL_TEXT[i]:0:67}…"
+      f_log "[i] Geändertes \"Subject:\" > ${MAIL_TEXT[i]}"
+    fi
+    f_log "[i] Gefundenes \"Subject:\" > ${MAIL_TEXT[i]}"
+    continue
+  fi  # Subject:
+
   if [[ "${MAIL_TEXT[i]}" =~ ^(Content-Type:.*) ]] ; then
     f_log "[i] ${BASH_REMATCH[0]} gefunden"
     CONTENT_FOUND=1
@@ -106,11 +122,31 @@ if [[ -z "$CONTENT_FOUND" ]] ; then
   CONTENT_TYPE='Content-Type: text/plain; charset=UTF-8'
 fi
 
+# Zeilenlänge auf max. 998 Zeichen begrenzen (RFC 5322)
+for ((i=0; i<${#MAIL_TEXT[@]}; i++)); do
+  line_length=${#MAIL_TEXT[$i]}
+  if ((line_length > 998)); then
+    # Split the line into multiple lines with a maximum length of 998 characters
+    split_lines=()
+    line_index=0
+    while ((line_length > 998)); do
+      split_lines+=("${MAIL_TEXT[$i]:$line_index:998}")
+      line_length=$((line_length - 998))
+      line_index=$((line_index + 998))
+    done
+    split_lines+=("${MAIL_TEXT[$i]:$line_index:$line_length}")
+    unset 'MAIL_TEXT[$i]'  # Originalzeile entfernen
+    for ((j=0; j<${#split_lines[@]}; j++)); do
+      MAIL_TEXT+=("${split_lines[$j]}")
+    done
+  fi
+done
+
 # Fehlende Header hinzufügen und eMail senden
 { #printf '%s\n' 'MIME-Version: 1.0'
   [[ -n "$CONTENT_TYPE" ]] && printf '%s\n' "$CONTENT_TYPE"
   [[ -z "$FROM_FOUND" ]] && printf '%s\n' "$NEW_FROM"
-  [[ -z "${MAIL_TEXT[0]}" ]] || printf '\n'  # Leerzeile, falls nicht vorhanden
+  [[ -n "${MAIL_TEXT[0]}" ]] && printf '\n'  # Leerzeile, falls nicht vorhanden
   printf '%s\n' "${MAIL_TEXT[@]}"
 } | "$MAILER" "${ARG[@]}" | f_log
 
