@@ -68,11 +68,30 @@ _LC_ALL="${LC_ALL:-${LANG}}"  # Aktuelle Locale sichern
 LC_ALL=C                      # Locale auf C setzen für schnelles Sortieren und RegEx
 
 ### Start
-
 if [[ -n "$DEBUG_SE" && -z "${DATA[7]}" ]] ; then
   logger -t 'get_se.sh' "TITLE='${TITLE}' SUBTITLE='${SUBTITLE}' SEASON='${DATA[2]}' EPISODE='${DATA[3]}' TIME='${DATA[6]}' TVS_S='' TVS_E='${DATA[8]}'"
 fi
 
+#* Titel bearbeiten
+# Titel mit (*) am Ende?
+re='\(.*\)$'
+if [[ "$TITLE" =~ $re ]] ; then     # Titel enthält Klammern am Ende!
+  FOUND_BRACE="${BASH_REMATCH[0]}"  # Wert speichern '(5/6)'
+  : "${TITLE%"${FOUND_BRACE}"}"
+  TITLE="${_%%' '}"                 # Leerzeichen entfernen
+fi
+
+# Titel von TVScraper verwenden wenn im Original Titel enthalten
+if [[ -n "${TITLE}" && -n "${DATA[9]}" ]] ; then  # Titel und Name in externer Datenbank
+  # Vergleich in Kleinbuchstaben (Kommissar Van der Valk vs. Kommissar van der Valk)
+  [[ "${TITLE,,}" =~ ${DATA[9],,} ]] && TITLE="${DATA[9]}"
+fi
+
+# Zeichen ersetzen, damit Aufnahmen nicht in unterschiedlichen Ordnern landen
+TITLE="${TITLE// - / – }"  # Kurzen durch langen Bindestrich (La_Zona_-_Do_not_cross)
+TITLE="${TITLE//’/\'}"     # Schräges ’ durch gerades ' (Marvel’s_Runaways)
+
+#* Kurztext bearbeiten
 # Falls Kurztext leer ist, Episode oder Datum/Zeit verwenden
 if [[ -z "$SUBTITLE" ]] ; then
   if [[ -n "${DATA[3]}" && "${DATA[3]}" =~ [A-Za-z]* ]] ; then
@@ -88,8 +107,9 @@ else  # Entfernen von (WH vom ...) aus dem Kurztext
   fi
 fi
 
-# Staffel- und Episoden-Nummer ermitteln wenn nicht vorhanden
-if [[ -z "${DATA[7]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus dem Kurztext zu erhalten
+#* Staffel- und Episoden-Nummer ermitteln wenn nicht vorhanden
+if [[ -z "${DATA[7]}" ]] ; then  # Staffel (TVScraper) nicht vorhanden
+  # Versuche Staffel und Episode aus dem Kurztext zu erhalten
   if [[ -n "$DEBUG_SE" ]] ; then
     STARTTIME="$(LC_ALL="$_LC_ALL" printf '%(%Y-%m-%d %H:%M)T' "${DATA[6]}")"  # 2017-03-07 13:00
     logger -t 'get_se.sh' "Trying to get missing Season/Episode from Subtitle: TITLE=${TITLE:-''} SUBTITLE=${SUBTITLE:-''} TIME=${STARTTIME}"
@@ -98,7 +118,7 @@ if [[ -z "${DATA[7]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   # EPG Beispiel Canal+ First:
   # Woke~Das Treffen S01 E08. Monate später glaubt Keef, dass er endlich an einem besseren Ort angekommen...
   re='(.*)S([0-9]+) E([0-9]+)' #(. [a-z]*)'
-  if [[ "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält Sxx Exx
+  if [[ "$SUBTITLE" =~ $re ]] ; then  # Kurztext enthält Sxx Exx
     printf -v S '%02d' "${BASH_REMATCH[2]#0}"  # 01
     printf -v E '%02d' "${BASH_REMATCH[3]#0}"  # 08
     : "${BASH_REMATCH[1]}"  # Das Treffen
@@ -108,8 +128,8 @@ if [[ -z "${DATA[7]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   # EPG Beispiel 3+:
   # Superstar~Staffel 01 - Folge 03: Highlights (1) / Castingshow, Schweiz 2006
   re='Staffel ([0-9]+).*Folge ([0-9]+)(.*)'
-  if [[ -z "$S" && "$SUBTITLE" =~ $re ]] ; then  #* Kurztext enthält Sxx Exx
-    printf -v S '%02d' "${BASH_REMATCH[1]#0}"  # 01 # Führende Null entfernen
+  if [[ -z "$S" && "$SUBTITLE" =~ $re ]] ; then  # Kurztext enthält Sxx Exx
+    printf -v S '%02d' "${BASH_REMATCH[1]#0}"  # 01
     printf -v E '%02d' "${BASH_REMATCH[2]#0}"  # 03
     SUBTITLE="${BASH_REMATCH[3]}"  # : Highlights (1) / Castingshow, Schweiz 2006
     re='^[:/ ]'
@@ -121,55 +141,28 @@ if [[ -z "${DATA[7]}" ]] ; then  # Staffel ist leer. Versuche Informationen aus 
   # EPG Beispiel Sky:
   # Wenn in der Beschreibung 'Staffel, Folge' entahlen ist, diese verwenden
   #re='([0-9]+).*Staffel, Folge ([0-9]+)'
-  #if [[ -z "$S" && "${DATA[5]:0:25}" =~ $re ]] ; then  #* Beschreibung enthält x. Staffel, Folge x:
+  #if [[ -z "$S" && "${DATA[5]:0:25}" =~ $re ]] ; then  # Beschreibung enthält x. Staffel, Folge x:
   #  printf -v S '%02d' "${BASH_REMATCH[1]#0}"  # 01
   #  printf -v E '%02d' "${BASH_REMATCH[2]#0}"  # 08
   #fi
 
-  # TVScraper Daten verwenden, falls vorhanden
-  #if [[ -z "$S" && -n "${DATA[7]}" ]] ; then
-  #  if [[ -n "$DEBUG_SE" ]] ; then
-  #    logger -t 'get_se.sh' "Using Season/Episode from TVScraper: S=${DATA[7]:-''} E=${DATA[8]:-''}"
-  #  fi
-  #  printf -v S '%02d' "${DATA[7]#0}"  # 01
-  #  printf -v E '%02d' "${DATA[8]#0}"  # 03
-  #fi
-
-  # if [[ -n "$DEBUG_SE" ]] ; then
-  #  logger -t 'get_se.sh' "Got Season/Episode: S=${S:-''} E=${E:-''}"
-  # fi
+  if [[ -n "$DEBUG_SE" ]] ; then
+    logger -t 'get_se.sh' "Got Season/Episode: S=${S:-''} E=${E:-''}"
+  fi
 fi
 
-# Kurztext von TVScraper verwenden (Vergleich in Kleinbuchstaben)
+# Kurztext von TVScraper verwenden, wenn im Original Kurztext enthalten (Vergleich in Kleinbuchstaben)
 if [[ -n "${DATA[10]}" && "${SUBTITLE,,}" =~ ${DATA[10],,} ]] ; then  # Nur wenn in SUBTITLE enthalten
   SUBTITLE="${DATA[10]}"
 fi
 
-# Kurztext kürzen, falls zu lang ist
+# Kurztext kürzen, falls länger als 60 Zeichen
 if [[ "${#SUBTITLE}" -gt 60 ]] ; then
     : "${SUBTITLE:0:60}"
     SUBTITLE="${_%%' '}…"  # Leerzeichen am Ende entfernen und … anhängen
 fi
 
-# Titel mit (*) am Ende?
-re='\(.*\)$'
-if [[ "$TITLE" =~ $re ]] ; then     #* Titel enthält Klammern am Ende!
-  FOUND_BRACE="${BASH_REMATCH[0]}"  # Wert speichern '(5/6)'
-  : "${TITLE%"${FOUND_BRACE}"}"
-  TITLE="${_%%' '}"                 # Klammern (und Leerzeichen) entfernen
-fi
-
-# Titel von TVScraper verwenden wenn im Original Titel enthalten
-if [[ -n "${TITLE}" && -n "${DATA[9]}" ]] ; then  # Titel und Name in externer Datenbank
-  # Vergleich in Kleinbuchstaben (Kommissar Van der Valk vs. Kommissar van der Valk)
-  [[ "${TITLE,,}" =~ ${DATA[9],,} ]] && TITLE="${DATA[9]}"
-fi
-
-# Zeichen ersetzen, damit Aufnahmen nicht in unterschiedlichen Ordnern landen
-TITLE="${TITLE// - / – }"  # Kurzen durch langen Bindestrich (La_Zona_-_Do_not_cross)
-TITLE="${TITLE//’/\'}"     # Schräges ’ durch gerades ' (Marvel’s_Runaways)
-
-# Gefundene Klammern im Titel an Kurztext anhängen (5/6)
+# Im Titel gefundene Klammern an Kurztext anhängen (5/6)
 if [[ -n "$FOUND_BRACE" ]] ; then
   #re='(\(S[0-9]+E[0-9]+\).*)'    # (S01E01)
   #if [[ "$SUBTITLE" =~ $re ]] ; then
