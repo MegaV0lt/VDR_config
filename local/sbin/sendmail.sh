@@ -61,10 +61,9 @@ for i in "${!MAIL_TEXT[@]}" ; do
     if [[ -z "$FROM_NAME" || "$PREFER_FROM_MAIL" == 'true' ]] ; then
       : "${MAIL_TEXT[i]#From:}" ; from_name="${_%<*}"
       f_trim 'from_name'  # Leerzeichen am Anfang und Ende entfernen
-      [[ "${#from_name}" -ge 1 ]] && FROM_NAME="$from_name"
+      [[ -n "${from_name}" ]] && FROM_NAME="$from_name"
     fi
-    NEW_FROM="From: ${FROM_NAME:-root}<${MAIL_ADRESS}>"
-    MAIL_TEXT[i]="$NEW_FROM"
+    MAIL_TEXT[i]="From: ${FROM_NAME:-root}<${MAIL_ADRESS}>"
     f_log "[i] Geändertes \"From:\" > ${MAIL_TEXT[i]}"
     continue
   fi  # From:
@@ -118,7 +117,7 @@ if [[ -n "$TO_FOUND" && ! "${ARG[*]}" =~ -t && ! "${ARG[-1]}" =~ @ ]] ; then
 fi
 
 if [[ -z "$CONTENT_FOUND" ]] ; then
-  f_log"[i] Kein 'Content-Type:' gefunden. Erzeuge neues"
+  f_log "[i] Kein 'Content-Type:' gefunden. Erzeuge neues"
   CONTENT_TYPE='Content-Type: text/plain; charset=UTF-8'
 fi
 
@@ -146,7 +145,7 @@ done
 { #printf '%s\n' 'MIME-Version: 1.0'
   [[ -n "$CONTENT_TYPE" ]] && printf '%s\n' "$CONTENT_TYPE"
   [[ -z "$FROM_FOUND" ]] && printf '%s\n' "$NEW_FROM"
-  [[ -n "${MAIL_TEXT[0]}" ]] && printf '\n'  # Leerzeile, falls nicht vorhanden
+  #[[ -n "${MAIL_TEXT[0]}" ]] && printf '\n'  # Leerzeile, falls nicht vorhanden
   printf '%s\n' "${MAIL_TEXT[@]}"
 } | "$MAILER" "${ARG[@]}" | f_log
 
