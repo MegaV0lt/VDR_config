@@ -110,7 +110,7 @@ fi
 { #printf '%s\n' 'MIME-Version: 1.0'
   [[ -n "$CONTENT_TYPE" ]] && printf '%s\n' "$CONTENT_TYPE"
   [[ -z "$FROM_FOUND" ]] && printf '%s\n' "$NEW_FROM"
-  [[ "${#MAIL_TEXT[0]}" -eq 0 ]] || printf '\n'  # Leerzeile, falls nicht vorhanden
+  [[ -z "${MAIL_TEXT[0]}" ]] || printf '\n'  # Leerzeile, falls nicht vorhanden
   printf '%s\n' "${MAIL_TEXT[@]}"
 } | "$MAILER" "${ARG[@]}" | f_log
 
@@ -121,9 +121,9 @@ fi
   printf '%s\n' "${MAIL_TEXT[@]:0:7}"  # 7 Zeilen
 } | f_log
 
-if [[ -e "$LOG" ]] ; then       # Log-Datei umbenennen, wenn zu groß
+if [[ -e "$LOG" && -w "$LOG" ]] ; then  # Log-Datei umbenennen, wenn zu groß
   FILE_SIZE="$(stat -c %s "$LOG" 2>/dev/null)"
-  [[ $FILE_SIZE -ge $MAX_LOG_SIZE ]] && mv --force "$LOG" "${LOG}.old"
+  [[ ${FILE_SIZE:-$MAX_LOG_SIZE} -ge $MAX_LOG_SIZE ]] && mv --force "$LOG" "${LOG}.old"
 fi
 
 exit 0  # Ende
