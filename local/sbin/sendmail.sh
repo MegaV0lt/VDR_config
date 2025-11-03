@@ -3,9 +3,9 @@
 # sendmail.sh (Symlink nach /usr/sbin/sendmail und /usr/bin/sendmail)
 # Wrapper für msmtp. Dienste wie Anacron verwenden als From: nur root
 # Fehlende Header (Z. B. Content-Type:) werden ergänzt
-VERSION=240131
+VERSION=251103
 
-
+### Variablen
 SELF="$(readlink /proc/$$/fd/255)"     # Eigener Pfad (besseres $0)
 SELF_NAME="${SELF##*/}"
 LOG="/var/log/${SELF_NAME%.*}.log"     # Log
@@ -110,6 +110,7 @@ fi
 { #printf '%s\n' 'MIME-Version: 1.0'
   [[ -n "$CONTENT_TYPE" ]] && printf '%s\n' "$CONTENT_TYPE"
   [[ -z "$FROM_FOUND" ]] && printf '%s\n' "$NEW_FROM"
+  [[ "${#MAIL_TEXT[0]}" -eq 0 ]] || printf '\n'  # Leerzeile, falls nicht vorhanden
   printf '%s\n' "${MAIL_TEXT[@]}"
 } | "$MAILER" "${ARG[@]}" | f_log
 
