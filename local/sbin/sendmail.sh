@@ -3,7 +3,7 @@
 # sendmail.sh (Symlink nach /usr/sbin/sendmail und /usr/bin/sendmail)
 # Wrapper für msmtp. Dienste wie Anacron verwenden als From: nur root
 # Fehlende Header (Z. B. Content-Type:) werden ergänzt
-VERSION=251103
+VERSION=251104
 
 ### Variablen
 SELF="$(readlink /proc/$$/fd/255)"     # Eigener Pfad (besseres $0)
@@ -88,10 +88,10 @@ for i in "${!MAIL_TEXT[@]}" ; do
       f_log "[w] Leerer 'Subject:' gefunden!"
       MAIL_TEXT[i]="Subject: (no subject)"
       f_log "[i] Geändertes \"Subject:\" > ${MAIL_TEXT[i]}"
-    elif [[ "${#MAIL_TEXT[i]}" -gt 70 ]] ; then
-      f_log "[w] 'Subject:' zu lang (${#MAIL_TEXT[i]} Zeichen)!"
-      MAIL_TEXT[i]="${MAIL_TEXT[i]:0:67}…"
-      f_log "[i] Geändertes \"Subject:\" > ${MAIL_TEXT[i]}"
+    #elif [[ "${#MAIL_TEXT[i]}" -gt 67 ]] ; then
+    #  f_log "[w] 'Subject:' zu lang (${#MAIL_TEXT[i]} Zeichen)!"
+    #  MAIL_TEXT[i]="${MAIL_TEXT[i]:0:67}…"
+    #  f_log "[i] Geändertes \"Subject:\" > ${MAIL_TEXT[i]}"
     fi
     f_log "[i] Gefundenes \"Subject:\" > ${MAIL_TEXT[i]}"
     continue
