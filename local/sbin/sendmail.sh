@@ -9,9 +9,10 @@ VERSION=251104
 SELF="$(readlink /proc/$$/fd/255)"     # Eigener Pfad (besseres $0)
 SELF_NAME="${SELF##*/}"
 LOG="/var/log/${SELF_NAME%.*}.log"     # Log
-MAX_LOG_SIZE=$((100*1024))               # In Bytes
+MAX_LOG_SIZE=$((100*1024))             # In Bytes
 PREFER_FROM_MAIL='true'                # From-Name aus Mailtext bevorzugen
 MAILER='/usr/bin/msmtp'                # Mail-Programm
+DEBUG='false'                          # Debug-Ausgaben
 
 ### Funktionen
 f_trim() {  # Entfernt Leerzeichen am Anfang und Ende
@@ -30,7 +31,7 @@ f_log() {                                           # Akzeptiert Parameter und v
 [[ -e '/etc/mailadresses' ]] && source /etc/mailadresses
 [[ -z "$MAIL_ADRESS" ]] && { f_log "[!] Keine eMail-Adresse definiert!" ; exit 1 ;}
 printf '%s %(%F %R)T %b\n' '==>' -1 "- $SELF_NAME #${VERSION}" | f_log
-f_log "[i] Parameter ($#): $*"
+[[ "$DEBUG" == 'true' ]] && f_log "[i] Parameter ($#): $*"
 
 [[ $# -eq 0 ]] && { f_log '[!] Keine Parameter übergeben! (exit)'; exit 1 ;}
 
@@ -49,7 +50,7 @@ if [[ ! "${ARG[-1]}" =~ @ && ! "${ARG[-1]}" =~ ^- ]] ; then
 fi
 
 # Ergebnis
-f_log "[i] Parameter nach Bearbeitung (${#ARG[@]}): ${ARG[*]}"
+[[ "$DEBUG" == 'true' ]] && f_log "[i] Parameter nach Bearbeitung (${#ARG[@]}): ${ARG[*]}"
 
 # eMail-text in Array einlesen (Von STDIN)
 mapfile -t MAIL_TEXT
@@ -57,19 +58,19 @@ mapfile -t MAIL_TEXT
 for i in "${!MAIL_TEXT[@]}" ; do
   if [[ "${MAIL_TEXT[i]}" =~ ^From: ]] ; then
     FROM_FOUND=1
-    f_log "[i] Gefundenes \"From:\" > ${MAIL_TEXT[i]}"
+    [[ "$DEBUG" == 'true' ]] && f_log "[i] Gefundenes \"From:\" > ${MAIL_TEXT[i]}"
     if [[ -z "$FROM_NAME" || "$PREFER_FROM_MAIL" == 'true' ]] ; then
       : "${MAIL_TEXT[i]#From:}" ; from_name="${_%<*}"
       f_trim 'from_name'  # Leerzeichen am Anfang und Ende entfernen
       [[ -n "${from_name}" ]] && FROM_NAME="$from_name"
     fi
     MAIL_TEXT[i]="From: ${FROM_NAME:-root}<${MAIL_ADRESS}>"
-    f_log "[i] Geändertes \"From:\" > ${MAIL_TEXT[i]}"
+    [[ "$DEBUG" == 'true' ]] && f_log "[i] Geändertes \"From:\" > ${MAIL_TEXT[i]}"
     continue
   fi  # From:
 
   if [[ "${MAIL_TEXT[i]}" =~ ^T[oO0]: ]] ; then  # To:, TO: oder T0:
-    f_log "[i] Gefundenes \"To:\" > ${MAIL_TEXT[i]}"
+    [[ "$DEBUG" == 'true' ]] && f_log "[i] Gefundenes \"To:\" > ${MAIL_TEXT[i]}"
     if [[ -n "$TO_FOUND" ]] ; then
       f_log "[w] Entferne Doppeltes 'To:'!"
       unset -v 'MAILTEXT[i]' ; ((i-=1))
@@ -78,7 +79,7 @@ for i in "${!MAIL_TEXT[@]}" ; do
     TO_FOUND=1
     if [[ ! "${MAIL_TEXT[i]}" =~ @ ]] ; then
       MAIL_TEXT[i]+="<${TO_ADRESS}>"
-      f_log "[i] Geändertes \"To:\" > ${MAIL_TEXT[i]}"
+      [[ "$DEBUG" == 'true' ]] && f_log "[i] Geändertes \"To:\" > ${MAIL_TEXT[i]}"
     fi
     continue
   fi  # To:
@@ -87,18 +88,18 @@ for i in "${!MAIL_TEXT[@]}" ; do
     if [[ -z "${MAIL_TEXT[i]#Subject: }" ]] ; then
       f_log "[w] Leerer 'Subject:' gefunden!"
       MAIL_TEXT[i]="Subject: (no subject)"
-      f_log "[i] Geändertes \"Subject:\" > ${MAIL_TEXT[i]}"
+      [[ "$DEBUG" == 'true' ]] && f_log "[i] Geändertes \"Subject:\" > ${MAIL_TEXT[i]}"
     #elif [[ "${#MAIL_TEXT[i]}" -gt 67 ]] ; then
     #  f_log "[w] 'Subject:' zu lang (${#MAIL_TEXT[i]} Zeichen)!"
     #  MAIL_TEXT[i]="${MAIL_TEXT[i]:0:67}…"
-    #  f_log "[i] Geändertes \"Subject:\" > ${MAIL_TEXT[i]}"
+    #  [[ "$DEBUG" == 'true' ]] && f_log "[i] Geändertes \"Subject:\" > ${MAIL_TEXT[i]}"
     fi
-    f_log "[i] Gefundenes \"Subject:\" > ${MAIL_TEXT[i]}"
+    [[ "$DEBUG" == 'true' ]] && f_log "[i] Gefundenes \"Subject:\" > ${MAIL_TEXT[i]}"
     continue
   fi  # Subject:
 
   if [[ "${MAIL_TEXT[i]}" =~ ^(Content-Type:.*) ]] ; then
-    f_log "[i] ${BASH_REMATCH[0]} gefunden"
+    [[ "$DEBUG" == 'true' ]] && f_log "[i] ${BASH_REMATCH[0]} gefunden"
     CONTENT_FOUND=1
   fi
   [[ "$i" -gt 25 ]] && break  # Nach 25 Zeilen beenden
@@ -150,11 +151,13 @@ done
 } | "$MAILER" "${ARG[@]}" | f_log
 
 # Für Debug-Zwecke:
-{ printf '%s\n' "[DEBUG]:"
-  [[ -n "$CONTENT_TYPE" ]] && printf '%s\n' "$CONTENT_TYPE"
-  [[ -z "$FROM_FOUND" ]] && printf '%s\n' "$NEW_FROM"
-  printf '%s\n' "${MAIL_TEXT[@]:0:7}"  # 7 Zeilen
-} | f_log
+if [[ "$DEBUG" == 'true' ]] ; then
+  { printf '%s\n' "[DEBUG]:"
+    [[ -n "$CONTENT_TYPE" ]] && printf '%s\n' "$CONTENT_TYPE"
+    [[ -z "$FROM_FOUND" ]] && printf '%s\n' "$NEW_FROM"
+    printf '%s\n' "${MAIL_TEXT[@]:0:7}"  # 7 Zeilen
+  } | f_log
+fi
 
 if [[ -e "$LOG" && -w "$LOG" ]] ; then  # Log-Datei umbenennen, wenn zu groß
   FILE_SIZE="$(stat -c %s "$LOG" 2>/dev/null)"
