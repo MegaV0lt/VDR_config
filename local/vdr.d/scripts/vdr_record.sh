@@ -65,6 +65,12 @@ case "$1" in
     #    f_logger "Linkziel von $2 wurde angepasst (-> ${LNK%.rec}.del)"
     #  fi # -d
     #fi # -L
+    # Prüfen ob 00001.ts ein Symlink ist (Enigma2 Aufnahme)
+    if [[ -L "${2}/00001.ts" ]] ; then
+      ENIGMA_LINK="$(readlink "${2}/00001.ts")"
+      mv "$ENIGMA_LINK" "${ENIGMA_LINK}.del"
+      f_logger "Renamed Enigma2 recording $ENIGMA_LINK to ${ENIGMA_LINK}.del"
+    fi
     ;;
   copying)
     # echo "Destination recording $2"
