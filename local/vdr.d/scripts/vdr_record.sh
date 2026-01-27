@@ -57,8 +57,8 @@ case "$1" in
     ;;
   deleted)  # Nach dem löschen einer Aufnahme
     # echo "Deleted recording $2"
-    # Prüfen ob 00001.ts ein Symlink ist (Enigma2 Aufnahme)
-    if [[ -L "${2}/00001.ts" ]] ; then
+    # Prüfen ob .linked_from_enigma2 Datei existiert
+    if [[ -e "${2}/.linked_from_enigma2" ]] ; then
       "${VDR_SCRIPT_DIR}/vdr_del_enigma2_recording.sh" "$2" &>/dev/null & disown
     fi
     ;;

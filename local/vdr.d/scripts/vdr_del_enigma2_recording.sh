@@ -14,7 +14,10 @@ if ! declare -F f_logger &>/dev/null ; then
   f_logger() { logger -t yaVDR "vdr_del_enigma2_recording.sh: $*" ;}
 fi
 
-ENIGMA_LINK="$(readlink "${1}/00001.ts")"  # Ziel des Links merken -> ../../../movie/Filmname.ts
+# Read actual path if .linked_from_enigma2 file exists (../../../movie/Filmname.ts)
+if [[ -e "${1}/.linked_from_enigma2" ]] ; then
+    ENIGMA_LINK="$(<"${1}/.linked_from_enigma2")"
+fi
 TRASHCAN_DIR="${ENIGMA_LINK%/movie/*}/movie/trashcan"
 
 if [[ -d "$TRASHCAN_DIR" ]] ; then
