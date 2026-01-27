@@ -67,9 +67,32 @@ case "$1" in
     #fi # -L
     # Prüfen ob 00001.ts ein Symlink ist (Enigma2 Aufnahme)
     if [[ -L "${2}/00001.ts" ]] ; then
-      ENIGMA_LINK="$(readlink "${2}/00001.ts")"
-      mv "$ENIGMA_LINK" "${ENIGMA_LINK}.del"
-      f_logger "Renamed Enigma2 recording $ENIGMA_LINK to ${ENIGMA_LINK}.del"
+      ENIGMA_LINK="$(readlink "${2}/00001.ts")"  # Ziel des Links merken -> ../../../movie/Filmname.ts
+      # Move .ts and associated files to trashcan directory in /media/hdd/movie/trashcan
+      TRASHCAN_DIR="${ENIGMA_LINK%/movie/*}/movie/trashcan"
+      if [[ -d "$TRASHCAN_DIR" ]] ; then
+        REC_NAME="${ENIGMA_LINK%.ts}"
+        # Move main .ts file to trashcan
+        mv "${REC_NAME}.ts" "$TRASHCAN_DIR"
+        # Check for part files (Name_001.ts, Name_002.ts, ...)
+        for ((i=1; i<1000; i++)); do
+          if [[ -f "${REC_NAME}_$(printf '%03d' $i).ts" ]] ; then
+            mv "${REC_NAME}_$(printf '%03d' $i).ts" "${TRASHCAN_DIR}" || {
+              f_logger "Error: Failed to move ${REC_NAME}_$(printf '%03d' $i).ts to $TRASHCAN_DIR"
+            }
+            f_logger "Moved ${REC_NAME}_$(printf '%03d' $i).ts to trashcan: ${TRASHCAN_DIR}"
+          else
+            break  # No more part files found
+          fi
+        done
+        # Move associated files to trashcan
+        for ext in .meta .eit .ts.ap .cuts .sc ; do
+          mv "${REC_NAME}${ext}" "$TRASHCAN_DIR"
+        done
+        f_logger "Moved Enigma2 recording $ENIGMA_LINK to $TRASHCAN_DIR"
+      else
+        f_logger "Error: Trashcan directory $TRASHCAN_DIR does not exist. Cannot move Enigma2 recording $ENIGMA_LINK."
+      fi
     fi
     ;;
   copying)
