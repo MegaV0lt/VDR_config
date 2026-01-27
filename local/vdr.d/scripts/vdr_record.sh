@@ -57,42 +57,9 @@ case "$1" in
     ;;
   deleted)  # Nach dem löschen einer Aufnahme
     # echo "Deleted recording $2"
-    #if [[ -L "$2" ]] ; then  # Testen ob es ein Symlink ist
-    #  LNK="$(readlink "$2")"             # Ziel des Links merken
-    #  if [[ -d "$LNK" ]] ; then          # Ist ein Verzeichnis
-    #    mv "$LNK" "${LNK%.rec}.del"      # Umbenennen -> *.del
-    #    ln -s --force -n "${LNK%.rec}.del" "$2"  # Symlink ersetzen
-    #    f_logger "Linkziel von $2 wurde angepasst (-> ${LNK%.rec}.del)"
-    #  fi # -d
-    #fi # -L
     # Prüfen ob 00001.ts ein Symlink ist (Enigma2 Aufnahme)
     if [[ -L "${2}/00001.ts" ]] ; then
-      ENIGMA_LINK="$(readlink "${2}/00001.ts")"  # Ziel des Links merken -> ../../../movie/Filmname.ts
-      # Move .ts and associated files to trashcan directory in /media/hdd/movie/trashcan
-      TRASHCAN_DIR="${ENIGMA_LINK%/movie/*}/movie/trashcan"
-      if [[ -d "$TRASHCAN_DIR" ]] ; then
-        REC_NAME="${ENIGMA_LINK%.ts}"
-        # Move main .ts file to trashcan
-        mv "${REC_NAME}.ts" "$TRASHCAN_DIR"
-        # Check for part files (Name_001.ts, Name_002.ts, ...)
-        for ((i=1; i<1000; i++)); do
-          if [[ -f "${REC_NAME}_$(printf '%03d' $i).ts" ]] ; then
-            mv "${REC_NAME}_$(printf '%03d' $i).ts" "${TRASHCAN_DIR}" || {
-              f_logger "Error: Failed to move ${REC_NAME}_$(printf '%03d' $i).ts to $TRASHCAN_DIR"
-            }
-            f_logger "Moved ${REC_NAME}_$(printf '%03d' $i).ts to trashcan: ${TRASHCAN_DIR}"
-          else
-            break  # No more part files found
-          fi
-        done
-        # Move associated files to trashcan
-        for ext in .meta .eit .ts.ap .cuts .sc ; do
-          mv "${REC_NAME}${ext}" "$TRASHCAN_DIR"
-        done
-        f_logger "Moved Enigma2 recording $ENIGMA_LINK to $TRASHCAN_DIR"
-      else
-        f_logger "Error: Trashcan directory $TRASHCAN_DIR does not exist. Cannot move Enigma2 recording $ENIGMA_LINK."
-      fi
+      "${VDR_SCRIPT_DIR}/vdr_del_enigma2_recording.sh" "$2" &>/dev/null & disown
     fi
     ;;
   copying)
