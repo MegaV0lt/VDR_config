@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#
+
 # vdr_record.sh
 #
 # Wird vom VDR aufgerufen bei Start und Ende von Aufnahmen, so wie bei Schnitt

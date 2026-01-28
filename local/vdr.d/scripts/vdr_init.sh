@@ -5,13 +5,13 @@
 # Wird kurz vor dem Start von VDR ausgeführt
 # Skripte in /etc/vdr.d werden nacheinander ausgeführt
 #
-# VERSION=250106
+# VERSION=260128
 
 source /_config/bin/yavdr_funcs.sh &>/dev/null
 
 # Funktionen
 if ! declare -F f_logger >/dev/null ; then
-  f_logger() { logger -t yaVDR "vdr_init.sh: $*" ;}  # Einfachere Version
+    f_logger() { logger -t yaVDR "vdr_init.sh: $*" ;}  # Einfachere Version
 fi
 
 export LANG='de_DE.UTF-8'
@@ -28,21 +28,21 @@ export VDR_LANG='de_DE.UTF-8'
 # Starte eigene Skripte in /etc/vdr.d/
 TIMEOUT=10  # Timeout für Skripte
 for file in /etc/vdr.d/[0-9]* ; do
-  f_logger "Starting $file"
-  ("$file" | logger -t "${file##*/}") & pid=$!
-  (sleep "$TIMEOUT" && kill -HUP "$pid") 2>/dev/null & watcher=$!
-  wait "$pid" 2>/dev/null && pkill -HUP -P "$watcher"
+    f_logger "Starting $file"
+    ("$file" | logger -t "${file##*/}") & pid=$!
+    (sleep "$TIMEOUT" && kill -HUP "$pid") 2>/dev/null & watcher=$!
+    wait "$pid" 2>/dev/null && pkill -HUP -P "$watcher"
 done
 
 # Aktiviere Coredumping, wenn Debug an ist (LOG_LEVEL=3)
 if [[ "$LOG_LEVEL" -gt 2 ]] ; then
-   [[ ! -d /var/tmp/corefiles ]] && mkdir /var/tmp/corefiles
-   chmod 777 /var/tmp/corefiles
-   echo '/var/tmp/corefiles/core' > /proc/sys/kernel/core_pattern
-   echo '1' > /proc/sys/kernel/core_uses_pid
-   ulimit -c unlimited
-   locale -v | logger -t "$SELF_NAME"
-   env | logger -t "$SELF_NAME"
+    [[ ! -d /var/tmp/corefiles ]] && mkdir /var/tmp/corefiles
+    chmod 777 /var/tmp/corefiles
+    echo '/var/tmp/corefiles/core' > /proc/sys/kernel/core_pattern
+    echo '1' > /proc/sys/kernel/core_uses_pid
+    ulimit -c unlimited
+    locale -v | logger -t "$SELF_NAME"
+    env | logger -t "$SELF_NAME"
 fi
 
 #Build commands.conf
@@ -68,25 +68,23 @@ fi
 #   done > /etc/vdr/reccmds.conf
 #fi
 
+# Setze ausführbare Rechte für skripte in /etc/vdr.d/scripts
+if [[ -d /etc/vdr.d/scripts ]] ; then
+    find /etc/vdr.d/scripts/ -type f -name '*.sh' -exec chmod +x {} \;
+fi
+
 # Alte core.* Dateien entfernen
 if [[ -d /var/tmp/corefiles ]] ; then
-  find /var/tmp/corefiles/ -type f -mtime +30 -print -delete | logger -t "$SELF_NAME"
+    find /var/tmp/corefiles/ -type f -mtime +30 -print -delete | logger -t "$SELF_NAME"
 fi
 
 : "${VIDEO:=/video}"  # Vorgabe wenn leer
 
-logger -t "$SELF_NAME" 'Clean up /video directory…'
-
-# Defekte Symlinks in /video entfernen
-find "$VIDEO"/ -xtype l -print -delete | logger -t "$SELF_NAME"
-
-# Alte .rec löschen
-find "$VIDEO"/ -name '.rec' -type f -mtime +1 -print -delete | logger -t "$SELF_NAME"
-
-# Alte .markad.pid löschen
-find "$VIDEO"/ -name 'markad.pid' -type f -mtime +1 -print -delete | logger -t "$SELF_NAME"
-
-# Leere Verzeichnisse in /video entfernen
-find "$VIDEO"/ -type d -empty -print -delete | logger -t "$SELF_NAME"
+f_logger 'Clean up video directory…'
+{   find "$VIDEO"/ -xtype l -print -delete                              # Defekte Symlinks entfernen
+    find "$VIDEO"/ -name '.rec' -type f -mtime +1 -print -delete        # Alte .rec löschen
+    find "$VIDEO"/ -name 'markad.pid' -type f -mtime +1 -print -delete  # Alte .markad.pid löschen
+    find "$VIDEO"/ -type d -empty -print -delete                        # Leere Verzeichnisse entfernen
+} | logger -t "$SELF_NAME"
 
 # Ende
