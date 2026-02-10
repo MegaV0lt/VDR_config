@@ -21,7 +21,7 @@ if [[ -e "${1}/.linked_from_enigma2" ]] ; then
 fi
 
 # Create a .del file in the recording directory to mark it as deleted (optional, can be used for debugging or future features)
-DEL_MARKER="${ENIGMA_LINK%.ts}.del"
+DEL_MARKER="${ENIGMA_LINK}.del"
 touch "$DEL_MARKER" || {
     f_logger "Error: Failed to create delete marker file $DEL_MARKER"
     exit 1
