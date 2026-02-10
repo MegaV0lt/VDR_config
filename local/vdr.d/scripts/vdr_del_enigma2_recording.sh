@@ -20,6 +20,16 @@ if [[ -e "${1}/.linked_from_enigma2" ]] ; then
     ENIGMA_LINK="$(<"${1}/.linked_from_enigma2")"
 fi
 
+# Create a .del file in the recording directory to mark it as deleted (optional, can be used for debugging or future features)
+DEL_MARKER="${ENIGMA_LINK%.ts}.del"
+touch "$DEL_MARKER" || {
+    f_logger "Error: Failed to create delete marker file $DEL_MARKER"
+    exit 1
+}
+f_logger "Marked Enigma2 recording ${ENIGMA_LINK} as deleted with marker file $DEL_MARKER"
+
+exit 0  # Exit here if you only want to create the .del marker file and not move the files to trashcan
+
 # Check if trashcan directory exists, create if not ('/media/hdd/movie/trash' is the default in EMC)
 TRASHCAN_DIR="${ENIGMA_LINK%/movie/*}/movie/trash"
 if [[ ! -d "$TRASHCAN_DIR" ]] ; then
