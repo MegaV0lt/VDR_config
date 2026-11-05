@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#
 # df_media.sh
 #
 # Gibt die Belegung der der eingehängten Medien in /media und optional den
