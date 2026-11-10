@@ -36,7 +36,7 @@ else  # Kein Parameter übergeben
         for rec in "${RECORDINGS[@]}" ; do
             if [[ ! -f "$rec/index" ]] ; then
                 f_log "Erstelle Indexdatei für Aufnahme '$rec'"
-                ionice -n 3 vdr --genindex "${rec%/index}" | f_log2
+                ionice -n 3 vdr --genindex "$rec" | f_log2
                 # Wenn nicht unter vdr ausgeführt wird, muss die Datei index auf den Benutzer vdr gesetzt werden
                 if [[ "$(id -un)" != "$USER" ]] ; then
                     if [[ -e "$rec/index" ]] ; then
