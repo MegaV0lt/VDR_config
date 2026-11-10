@@ -19,8 +19,9 @@ if [[ -n "$1" ]] ; then
         f_log "Fehler: '$1' ist kein Verzeichnis"
         exit 1
     fi
-    # Indexdatei erstellen
-    ionice -n 3 vdr --genindex "$1" | f_log2
+    # Indexdatei erstellen (Im Hintergrund, damit das Skript nicht blockiert wird)
+    f_log "Erstelle Indexdatei für Aufnahme '$1'"
+    f_detach ionice -n 3 vdr --genindex "$1"
 else  # Kein Parameter übergeben
     # Video-Verzeichniss (/video) scannen
     if [[ -d "$VIDEO" ]] ; then  # Aus der VDR-Konfiguration
@@ -34,11 +35,15 @@ else  # Kein Parameter übergeben
         # Nach der Datei index suchen und index erstellen, wenn kein index vorhanden ist
         for rec in "${RECORDINGS[@]}" ; do
             if [[ ! -f "$rec/index" ]] ; then
-                f_log "Erstelle Indexdatei '$rec'"
+                f_log "Erstelle Indexdatei für Aufnahme '$rec'"
                 ionice -n 3 vdr --genindex "${rec%/index}" | f_log2
                 # Wenn nicht unter vdr ausgeführt wird, muss die Datei index auf den Benutzer vdr gesetzt werden
                 if [[ "$(id -un)" != "$USER" ]] ; then
-                    chown "$USER":"$USER" "$rec/index"
+                    if [[ -e "$rec/index" ]] ; then
+                        chown "$USER":"$USER" "$rec/index"
+                    else
+                        f_log "Fehler: Indexdatei für Aufnahme '$rec' konnte nicht erstellt werden"
+                    fi
                 fi
             fi
         done
