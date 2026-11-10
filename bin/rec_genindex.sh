@@ -26,8 +26,8 @@ else  # Kein Parameter übergeben
     if [[ -d "$VIDEO" ]] ; then  # Aus der VDR-Konfiguration
         f_log "Kein Verzeichnis übergeben, scanne '$VIDEO'"
         # Nach VDR-Aufnahmen suchen (*.rec)
-        RECORDINGS=$(find "$VIDEO"/ -type d -name "*.rec" -maxdepth 4 2>/dev/null)
-        if [[ -z "$RECORDINGS" ]] ; then
+        mapfile -d '' -t RECORDINGS < <(find "$VIDEO"/ -maxdepth 4 -type d -name '*.rec' -print0 2>/dev/null)
+        if [[ ${#RECORDINGS[@]} -eq 0 ]] ; then
             f_log "Fehler: Keine Aufnahmen im Verzeichnis '$VIDEO' gefunden"
             exit 1
         fi
