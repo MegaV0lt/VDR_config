@@ -8,6 +8,7 @@
 
 # Variablen
 LOG_FILE="/var/log/rec_genindex.log"  # Log-Datei
+USER='vdr'  # Benutzer, unter dem das Skript ausgeführt wird
 
 # shellcheck disable=SC1090
 source /_config/bin/yavdr_funcs.sh &>/dev/null
@@ -25,7 +26,7 @@ else  # Kein Parameter übergeben
     if [[ -d "$VIDEO" ]] ; then  # Aus der VDR-Konfiguration
         f_log "Kein Verzeichnis übergeben, scanne '$VIDEO'"
         # Nach VDR-Aufnahmen suchen (*.rec)
-        RECORDINGS=$(find "$VIDEO" -type d -name "*.rec")
+        RECORDINGS=$(find "$VIDEO"/ -type d -name "*.rec" -maxdepth 4 2>/dev/null)
         if [[ -z "$RECORDINGS" ]] ; then
             f_log "Fehler: Keine Aufnahmen im Verzeichnis '$VIDEO' gefunden"
             exit 1
@@ -35,6 +36,10 @@ else  # Kein Parameter übergeben
             if [[ ! -f "$rec/index" ]] ; then
                 f_log "Erstelle Indexdatei '$rec'"
                 ionice -n 3 vdr --genindex "${rec%/index}" | f_log2
+                # Wenn nicht unter vdr ausgeführt wird, muss die Datei index auf den Benutzer vdr gesetzt werden
+                if [[ "$(id -un)" != "$USER" ]] ; then
+                    chown "$USER":"$USER" "$rec/index"
+                fi
             fi
         done
     else
