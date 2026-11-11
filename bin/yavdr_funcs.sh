@@ -4,11 +4,11 @@
 
 trap f_exit EXIT
 
-SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (Besseres $0)
-SELF_NAME="${SELF##*/}"                          # Eigener Name mit Erweiterung
-SVDRPSEND="$(type -p svdrpsend)"                 # svdrpsend vom VDR
+SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Own path (better $0)
+SELF_NAME="${SELF##*/}"                          # Own name with extension
+SVDRPSEND="$(type -p svdrpsend)"                 # svdrpsend from VDR
 
-source /usr/lib/vdr/config-loader.sh  # yaVDR Vorgaben
+source /usr/lib/vdr/config-loader.sh  # yaVDR defaults
 [[ -z "$LOG_LEVEL" ]] && source /etc/vdr.d/conf/vdr
 
 f_exit() { f_logger '<END>' ;}
@@ -34,28 +34,28 @@ f_logger() {
   fi
 }
 
-f_log() {  # Gibt die Meldung auf der Konsole und im Syslog aus
-  [[ -t 1 ]] && echo "$*"      # Konsole
+f_log() {  # Outputs message to console and syslog
+  [[ -t 1 ]] && echo "$*"      # Console
   logger -t "$SELF_NAME" "$*"  # Syslog
   if [[ -n "$LOG_FILE" ]] ; then
-    [[ ! -e "$LOG_FILE" ]] && : >> "$LOG_FILE"        # Datei erstellen
-    [[ -w "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log in Datei
+    [[ ! -e "$LOG_FILE" ]] && : >> "$LOG_FILE"        # Create file
+    [[ -w "$LOG_FILE" ]] && echo "$*" >> "$LOG_FILE"  # Log to file
   fi
 }
 
 f_log2() {
-  local data=("${@:-$(</dev/stdin)}")               # Akzeptiert Parameter und via stdin (|)
-  [[ -t 1 ]] && printf '%s\n' "${data[@]}"          # Konsole falls verbunden
-  logger -t "$SELF_NAME" "${data[@]}"               # Systemlog
+  local data=("${@:-$(</dev/stdin)}")               # Accepts parameters and via stdin (|)
+  [[ -t 1 ]] && printf '%s\n' "${data[@]}"          # Console if connected
+  logger -t "$SELF_NAME" "${data[@]}"               # Syslog
   if [[ -n "$LOG_FILE" ]] ; then
-    [[ ! -e "$LOG_FILE" ]] && : >> "$LOG_FILE"        # Datei erstellen
-    [[ -w "$LOG_FILE" ]] && printf '%s\n' "${data[@]}" >> "$LOG_FILE"  # Log-Datei
+    [[ ! -e "$LOG_FILE" ]] && : >> "$LOG_FILE"        # Create file
+    [[ -w "$LOG_FILE" ]] && printf '%s\n' "${data[@]}" >> "$LOG_FILE"  # Log file
   fi
 }
 
-f_rotate_log() {  # Log rotieren wenn zu groß
+f_rotate_log() {  # Rotate log if too large
   local file="${LOG_FILE:-$1}" file_size
-  if [[ -n "$file" && -w "$file" ]] ; then  # Datei Existiert und hat Schreibrechte
+  if [[ -n "$file" && -w "$file" ]] ; then  # File exists and has write permissions
     file_size="$(stat -c %s "$file" 2>/dev/null)"
     [[ ${file_size:-51200} -ge ${MAX_LOG_SIZE:-51200} ]] && mv --force "$file" "${file}.old"
     : >> "$file"
@@ -63,17 +63,17 @@ f_rotate_log() {  # Log rotieren wenn zu groß
 }
 
 #f_strstr() {  # strstr echoes nothing if s2 does not occur in s1
-#  [[ -n "$2" && -z "${1/*$2*}" ]] && return 0  # Gefunden
+#  [[ -n "$2" && -z "${1/*$2*}" ]] && return 0  # Found
 #  return 1
 #}
 
-f_svdrpsend_msgt() {  # Benötigt gepatchten VDR
-  mapfile -t < <("$SVDRPSEND" MSGT "$*")    # Prüfen ob VDR den Befehl kennt
+f_svdrpsend_msgt() {  # Requires patched VDR
+  mapfile -t < <("$SVDRPSEND" MSGT "$*")    # Check if VDR knows the command
   # 220 vdr01 SVDRP VideoDiskRecorder 2.6.1; Thu Oct 27 15:30:24 2022; UTF-8
   # 500 Command unrecognized: "MSGT"
   # 221 vdr01 closing connection
-  if [[ "${MAPFILE[1]}" == "500"* ]] ; then  # MSGT nicht vorhanden
-    : "${1#@}" ; : "${_#%}"                  # '%' oder '@' entfernen
+  if [[ "${MAPFILE[1]}" == "500"* ]] ; then  # MSGT not available
+    : "${1#@}" ; : "${_#%}"                  # Remove '%' or '@'
     "$SVDRPSEND" MESG "${_} ${*:2}"
   fi
 }
@@ -91,10 +91,10 @@ f_svdrpsend_msgt() {  # Benötigt gepatchten VDR
 f_dbus_send_message() {
   local message="$1" type="${2:-info}"
   if [[ "${message[0]}" == '%' ]] ; then
-    message="${message:1}"  # % entfernen
+    message="${message:1}"  # Remove %
     type='warning'
   elif [[ "${message[0]}" == '@' ]] ; then
-    message="${message:1}"  # @ entfernen
+    message="${message:1}"  # Remove @
     type='error'
   fi
 
